@@ -3,7 +3,7 @@
 using namespace std;
 
 // Project for the management of curricular activities that can be carried out per semester in a university
-// Authors: Hugo Méndez Barrantes and Olman Acuña
+// Authors: Hugo Mï¿½ndez Barrantes and Olman Acuï¿½a
 
 
 struct Administrator{
@@ -161,6 +161,5 @@ struct SubListCourse{
 
 int main()
 {
-    cout << "Hello world!" << endl;
     return 0;
 }
