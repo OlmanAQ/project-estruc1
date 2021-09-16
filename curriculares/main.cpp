@@ -353,6 +353,76 @@ bool deleteStudent(int studentCard){  // Method that deletes a registered studen
 }
 
 
+Semester* searchSemester(int year, int period){  // Method that search for a teacher through his identification
+    Semester* aux = firstSemester;
+
+    while(aux != NULL){                 // The teacher list is toured
+        if(aux->year == year && aux->period == period){  // Identifications are compared
+            return aux;                 // In case the identifications matches, then the teacher is returned
+        }
+        aux = aux->next;
+    }
+
+    return NULL;  // In case the teacher is not found, then "NULL" is returned
+}
+
+
+bool insertSemester(int year, int period){  // Method that inserts a new student in the "Student" list (ordered insertion)
+
+    if(firstSemester == NULL){       // If the list is empty, then the new node is created and it becomes the first one
+        Semester* newSemester = new Semester(year, period);
+        firstSemester = newSemester;  // The first node is updated
+        return true;
+    }
+
+    if(searchSemester(year, period) != NULL){  // If the given "student card" is repeated (that student is already registered) then the insertion can't be performed
+        return false;                        // So, "false" is returned
+    }
+
+    Semester* newSemester = new Semester(year, period);  // The new node (Student) is created
+
+    if(year <= firstSemester->year && period < firstSemester->period){  // Case #1: the student card of the new student is the lowest
+        newSemester->next = firstSemester;          // So, the new student is inserted at the beginning of the list
+        firstSemester->previous =newSemester;
+        firstSemester = newSemester;                // The first node is updated
+        return true;
+    }
+
+    Semester* nextAux = firstSemester->next;  // Auxiliary variable that will be useful in order to tour the list
+    Semester* preAux = firstSemester;     // Auxiliary variable that will be useful in order to place the new student in the proper position
+
+
+
+
+    while(nextAux != NULL){                      // Case #2: the student card of the new student is not the lowest but neither the highest
+        if(year <= nextAux->year && period < nextAux->period){  // In this case, a loop is created in order to find the students that go before and after the new one
+            preAux->next = newSemester;       // The "preAux" node, points to the new node
+            newSemester->next = nextAux;          // The new node, points to the "aux" node
+            newSemester->previous = preAux;
+            nextAux->previous = newSemester;
+
+            return true;
+        }
+        preAux = nextAux;
+        nextAux = nextAux->next;
+    }
+                                // Case #3: the student card of the new student is the highest
+    preAux->next = newSemester;  // So, the new student is inserted at the end of the list
+    newSemester->previous =preAux;
+    return true;
+}
+
+bool modifySemester(int y, int p, int np){  // Method that modifies the location of a registered teacher
+    Semester* aux = searchSemester(y,p);  // The teacher is searched using the "searchTeacher" method
+
+    if(aux != NULL){
+        aux->period = np;   // If the teacher is registered, then his information is modified
+        return true;
+    }
+
+    return false;  // If the teacher is not registered, then "false" is returned
+}
+
 void loadData(){  // Method that loads the initial data for the efficient performance of the application
     insertAdmin("Hugo Mendez", "ladiv2002");
     insertAdmin("Olman", "olmanAQ");
@@ -372,6 +442,8 @@ void loadData(){  // Method that loads the initial data for the efficient perfor
     insertStudent("Helena", 20211909, "Alajuela");
     insertStudent("Andrew", 20211406, "San Carlos");
 }
+
+
 
 // ------------------------------------------------------- Tests -------------------------------------------------------
 
