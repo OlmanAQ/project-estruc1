@@ -370,7 +370,7 @@ Semester* searchSemester(int year, int period){  // Method that search for a tea
 bool insertSemester(int year, int period){  // Method that inserts a new student in the "Student" list (ordered insertion)
 
     if(firstSemester == NULL){       // If the list is empty, then the new node is created and it becomes the first one
-        Semester* newSemester = new Semester(year, period);
+        Semester* newSemester = new Semester(period,year);
         firstSemester = newSemester;  // The first node is updated
         return true;
     }
@@ -379,9 +379,9 @@ bool insertSemester(int year, int period){  // Method that inserts a new student
         return false;                        // So, "false" is returned
     }
 
-    Semester* newSemester = new Semester(year, period);  // The new node (Student) is created
+    Semester* newSemester = new Semester(period,year);  // The new node (Student) is created
 
-    if(year <= firstSemester->year && period < firstSemester->period){  // Case #1: the student card of the new student is the lowest
+    if(year <= firstSemester->year && period <= firstSemester->period){  // Case #1: the student card of the new student is the lowest
         newSemester->next = firstSemester;          // So, the new student is inserted at the beginning of the list
         firstSemester->previous =newSemester;
         firstSemester = newSemester;                // The first node is updated
@@ -395,7 +395,7 @@ bool insertSemester(int year, int period){  // Method that inserts a new student
 
 
     while(nextAux != NULL){                      // Case #2: the student card of the new student is not the lowest but neither the highest
-        if(year <= nextAux->year && period < nextAux->period){  // In this case, a loop is created in order to find the students that go before and after the new one
+        if(year <= nextAux->year && period <= nextAux->period){  // In this case, a loop is created in order to find the students that go before and after the new one
             preAux->next = newSemester;       // The "preAux" node, points to the new node
             newSemester->next = nextAux;          // The new node, points to the "aux" node
             newSemester->previous = preAux;
@@ -423,6 +423,90 @@ bool modifySemester(int y, int p, int np){  // Method that modifies the location
     return false;  // If the teacher is not registered, then "false" is returned
 }
 
+Course* searchCourse(string code){  // Method that search for a student through his student card
+    Course* aux = firstCourse;
+
+    while(aux != NULL){                       // The student list is toured
+        if(aux->code == code){  // Student cards are compared
+            return aux;                       // In case the student cards matches, then the student is returned
+        }
+        aux = aux->next;
+    }
+
+    return NULL;  // In case the student is not found, then "NULL" is returned
+}
+
+bool insertCourse(string n, string c, int credis){  // Method that inserts a new teacher in the "Teacher" list (insertion at the start)
+
+    if(firstCourse == NULL){       // If the list is empty, then the new node is created and it becomes the first one
+        Course* newCourse = new Course(n,c,credis);
+        firstCourse = newCourse;  // The first node is updated
+        return true;
+    }
+
+    if(searchCourse(c) != NULL){  // If the given "id" is repeated (that means, that teacher is already registered) then the insertion can't be performed
+        return false;               // So, "false" is returned
+    }
+
+    Course* newCourse = new Course(n, c, credis);  // Otherwise, the new node is inserted at the beginning of the list
+    newCourse->next = firstCourse;      // The "next" link of the new node, points to the first node
+    Course * aux = firstCourse;
+
+            while(aux->next!= firstCourse){
+                aux = aux->next;
+            }
+
+            aux->next = newCourse;
+
+    return true;
+}
+
+
+
+bool modifyCourse(string code, string name){  // Method that modifies the location of a registered teacher
+
+    Course*aux = searchCourse(code);  // The teacher is searched using the "searchTeacher" method
+
+    if(aux != NULL){
+        aux->code = code;   // If the teacher is registered, then his information is modified
+        return true;
+    }
+
+    return false;  // If the teacher is not registered, then "false" is returned
+}
+
+bool deleteCourse(string code){  // Method that deletes a registered student from the list
+    Course* aux = searchCourse(code);  // The student is searched using the "searchStudent" method
+
+    if(aux != NULL){  // If the student is registered, then it will be deleted
+
+        if(aux == firstCourse){  // It is validated if it was the first node
+            firstCourse = firstCourse->next;
+            Course* nextAux = firstCourse->next;
+
+            while(nextAux->next!= firstCourse)
+                nextAux = nextAux->next;
+
+            nextAux->next = firstCourse;
+
+            return true;
+        }
+
+        Course* preAux = firstCourse;  // Auxiliary variable that will be useful in order to find the student that goes before the student we want to delete
+
+        while(preAux->next != aux){  // Loop that finds the student who goes before the student we want to delete
+            preAux = preAux->next;
+        }
+        preAux->next = aux->next;    // Finally, the student is deleted from the list
+        return true;
+    }
+
+    return false;  // If the student is not registered, then "false" is returned
+}
+
+
+
+
 void loadData(){  // Method that loads the initial data for the efficient performance of the application
     insertAdmin("Hugo Mendez", "ladiv2002");
     insertAdmin("Olman", "olmanAQ");
@@ -441,6 +525,15 @@ void loadData(){  // Method that loads the initial data for the efficient perfor
     insertStudent("Anthony", 20211503, "Cartago");
     insertStudent("Helena", 20211909, "Alajuela");
     insertStudent("Andrew", 20211406, "San Carlos");
+
+    insertSemester(2020,1);
+    insertSemester(2022, 1);
+    insertSemester(2021, 1);
+
+
+    insertCourse("Estructura de datos", "a", 4);
+
+
 }
 
 
@@ -486,11 +579,38 @@ void showStudents(){
 }
 
 
+void showSemesters(){
+    cout<<"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Showing Semesters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+    Semester* aux = firstSemester;
+
+    while(aux != NULL){
+        cout << "\nYeard: " << aux->year << endl;
+        cout << "\nPeriod: " << aux->period << endl;
+        cout << "\n--------------------------------------------------------------------------------------" << endl;
+        aux = aux->next;
+    }
+}
+
+void showCourses(){
+    cout<<"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Showing Courses ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+    Course* aux = firstCourse;
+
+    while(aux != NULL){
+        cout << "\nName: " << aux->name << endl;
+        cout << "\nCode: " << aux->code << endl;
+        cout << "\nCredits " << aux->credits << endl;
+        cout << "\n--------------------------------------------------------------------------------------" << endl;
+        aux = aux->next;
+    }
+}
+
 int main(){
     loadData();
     showAdmins();
     showTeachers();
     showStudents();
+    showSemesters();
+    showCourses();
 
     //modifyTeacher(208310022, "Cartago");  // Diego moves to Cartago
     //modifyStudent(20201802, "Cartago");   // Antonio moves to Cartago
