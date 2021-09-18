@@ -89,10 +89,10 @@ struct Course{
     Course *next;  // Link to the next node (Course) in the list
     struct SubListGroup *myGroups;  // Link to the course's groups
 
-    Course(string n, string code, int credits){
+    Course(string n, string c, int cred){
         name = n;
-        code = code;
-        credits = credits;
+        code = c;
+        credits = cred;
         next = NULL;
         myGroups = NULL;
     }
@@ -441,6 +441,7 @@ bool insertCourse(string n, string c, int credis){  // Method that inserts a new
     if(firstCourse == NULL){       // If the list is empty, then the new node is created and it becomes the first one
         Course* newCourse = new Course(n,c,credis);
         firstCourse = newCourse;  // The first node is updated
+        firstCourse->next =firstCourse;
         return true;
     }
 
@@ -448,17 +449,21 @@ bool insertCourse(string n, string c, int credis){  // Method that inserts a new
         return false;               // So, "false" is returned
     }
 
+else{
     Course* newCourse = new Course(n, c, credis);  // Otherwise, the new node is inserted at the beginning of the list
-    newCourse->next = firstCourse;      // The "next" link of the new node, points to the first node
     Course * aux = firstCourse;
 
-            while(aux->next!= firstCourse){
+
+
+            while(aux->next != firstCourse){
                 aux = aux->next;
             }
 
             aux->next = newCourse;
+            newCourse->next = firstCourse;
 
     return true;
+    }
 }
 
 
@@ -531,7 +536,14 @@ void loadData(){  // Method that loads the initial data for the efficient perfor
     insertSemester(2021, 1);
 
 
-    insertCourse("Estructura de datos", "a", 4);
+    insertCourse("Estructura de datos", "IC2001", 4);
+    insertCourse("Programacion Orientada a Objectos", "IC2061", 3);
+    insertCourse("Comunicacion Oral", "NM2001", 4);
+    insertCourse("Algebra", "IC2201", 4);
+    insertCourse("Ingles", "IC4001", 3);
+    insertCourse("Ingles", "IC4001", 3);
+
+
 
 
 }
