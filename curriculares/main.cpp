@@ -367,7 +367,7 @@ Semester* searchSemester(int year, int period){  // Method that search for a tea
 }
 
 
-bool insertSemester(int year, int period){  // Method that inserts a new student in the "Student" list (ordered insertion)
+bool insertSemester( int period, int year){  // Method that inserts a new student in the "Student" list (ordered insertion)
 
     if(firstSemester == NULL){       // If the list is empty, then the new node is created and it becomes the first one
         Semester* newSemester = new Semester(period,year);
@@ -379,9 +379,9 @@ bool insertSemester(int year, int period){  // Method that inserts a new student
         return false;                        // So, "false" is returned
     }
 
-    Semester* newSemester = new Semester(period,year);  // The new node (Student) is created
+    Semester* newSemester = new Semester(period, year);  // The new node (Student) is created
 
-    if(year <= firstSemester->year && period <= firstSemester->period){  // Case #1: the student card of the new student is the lowest
+    if(year <= firstSemester->year && period < firstSemester->period ){  // Case #1: the student card of the new student is the lowest
         newSemester->next = firstSemester;          // So, the new student is inserted at the beginning of the list
         firstSemester->previous =newSemester;
         firstSemester = newSemester;                // The first node is updated
@@ -395,7 +395,7 @@ bool insertSemester(int year, int period){  // Method that inserts a new student
 
 
     while(nextAux != NULL){                      // Case #2: the student card of the new student is not the lowest but neither the highest
-        if(year <= nextAux->year && period <= nextAux->period){  // In this case, a loop is created in order to find the students that go before and after the new one
+        if(year <= nextAux->year & period <= nextAux->period){  // In this case, a loop is created in order to find the students that go before and after the new one
             preAux->next = newSemester;       // The "preAux" node, points to the new node
             newSemester->next = nextAux;          // The new node, points to the "aux" node
             newSemester->previous = preAux;
@@ -423,10 +423,14 @@ bool modifySemester(int y, int p, int np){  // Method that modifies the location
     return false;  // If the teacher is not registered, then "false" is returned
 }
 
-Course* searchCourse(string code){  // Method that search for a student through his student card
-    Course* aux = firstCourse;
+Course* searchCourse(string code){  // Method that search for a student through his student card}
+    if(firstCourse->code == code){
+        return firstCourse;
+    }
 
-    while(aux != NULL){                       // The student list is toured
+    Course* aux = firstCourse->next;
+
+    while(aux != firstCourse){                       // The student list is toured
         if(aux->code == code){  // Student cards are compared
             return aux;                       // In case the student cards matches, then the student is returned
         }
@@ -531,9 +535,16 @@ void loadData(){  // Method that loads the initial data for the efficient perfor
     insertStudent("Helena", 20211909, "Alajuela");
     insertStudent("Andrew", 20211406, "San Carlos");
 
-    insertSemester(2020,1);
-    insertSemester(2022, 1);
-    insertSemester(2021, 1);
+    insertSemester(1,2020);
+    insertSemester(2,2021);
+    insertSemester(1,2022);
+    insertSemester(2,2022);
+    insertSemester(2,2020);
+    insertSemester(1,2021);
+    insertSemester(2,2022);
+
+
+
 
 
     insertCourse("Estructura de datos", "IC2001", 4);
@@ -607,13 +618,14 @@ void showCourses(){
     cout<<"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Showing Courses ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
     Course* aux = firstCourse;
 
-    while(aux != NULL){
+
+    do{
         cout << "\nName: " << aux->name << endl;
         cout << "\nCode: " << aux->code << endl;
         cout << "\nCredits " << aux->credits << endl;
         cout << "\n--------------------------------------------------------------------------------------" << endl;
         aux = aux->next;
-    }
+    }while(aux != firstCourse);
 }
 
 int main(){
