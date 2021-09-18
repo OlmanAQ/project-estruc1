@@ -490,6 +490,10 @@ bool deleteCourse(string code){  // Method that deletes a registered student fro
     if(aux != NULL){  // If the student is registered, then it will be deleted
 
         if(aux == firstCourse){  // It is validated if it was the first node
+            if(aux->next == firstCourse){
+                firstCourse= NULL;
+                return true;
+            }
             firstCourse = firstCourse->next;
             Course* nextAux = firstCourse->next;
 
@@ -546,12 +550,13 @@ void loadData(){  // Method that loads the initial data for the efficient perfor
 
 
 
-
+/*
     insertCourse("Estructura de datos", "IC2001", 4);
     insertCourse("Programacion Orientada a Objectos", "IC2061", 3);
     insertCourse("Comunicacion Oral", "NM2001", 4);
     insertCourse("Algebra", "IC2201", 4);
     insertCourse("Ingles", "IC4001", 3);
+    */
     insertCourse("Ingles", "IC4001", 3);
 
 
@@ -618,6 +623,7 @@ void showCourses(){
     cout<<"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Showing Courses ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
     Course* aux = firstCourse;
 
+    if(aux != NULL){
 
     do{
         cout << "\nName: " << aux->name << endl;
@@ -626,8 +632,8 @@ void showCourses(){
         cout << "\n--------------------------------------------------------------------------------------" << endl;
         aux = aux->next;
     }while(aux != firstCourse);
+    }
 }
-
 int main(){
     loadData();
     showAdmins();
@@ -635,6 +641,10 @@ int main(){
     showStudents();
     showSemesters();
     showCourses();
+    deleteCourse("IC4001");
+    showCourses();
+
+
 
     //modifyTeacher(208310022, "Cartago");  // Diego moves to Cartago
     //modifyStudent(20201802, "Cartago");   // Antonio moves to Cartago
