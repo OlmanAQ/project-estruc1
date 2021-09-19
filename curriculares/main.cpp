@@ -382,6 +382,7 @@ bool insertSemester( int period, int year){  // Method that inserts a new studen
     Semester* newSemester = new Semester(period, year);  // The new node (Student) is created
 
     if(year <= firstSemester->year && period < firstSemester->period ){  // Case #1: the student card of the new student is the lowest
+
         newSemester->next = firstSemester;          // So, the new student is inserted at the beginning of the list
         firstSemester->previous =newSemester;
         firstSemester = newSemester;                // The first node is updated
@@ -395,12 +396,11 @@ bool insertSemester( int period, int year){  // Method that inserts a new studen
 
 
     while(nextAux != NULL){                      // Case #2: the student card of the new student is not the lowest but neither the highest
-        if(year <= nextAux->year & period <= nextAux->period){  // In this case, a loop is created in order to find the students that go before and after the new one
+        if((year < nextAux->year) || ((year == nextAux->year) & (period < nextAux->period))){  // In this case, a loop is created in order to find the students that go before and after the new one
             preAux->next = newSemester;       // The "preAux" node, points to the new node
             newSemester->next = nextAux;          // The new node, points to the "aux" node
             newSemester->previous = preAux;
             nextAux->previous = newSemester;
-
             return true;
         }
         preAux = nextAux;
@@ -494,14 +494,15 @@ bool deleteCourse(string code){  // Method that deletes a registered student fro
                 firstCourse= NULL;
                 return true;
             }
+
+            Course* preAux = firstCourse;
+
+            while(preAux->next!= firstCourse){
+                preAux = preAux->next;
+            }
+
+            preAux->next = firstCourse->next;
             firstCourse = firstCourse->next;
-            Course* nextAux = firstCourse->next;
-
-            while(nextAux->next!= firstCourse)
-                nextAux = nextAux->next;
-
-            nextAux->next = firstCourse;
-
             return true;
         }
 
@@ -540,23 +541,22 @@ void loadData(){  // Method that loads the initial data for the efficient perfor
     insertStudent("Andrew", 20211406, "San Carlos");
 
     insertSemester(1,2020);
-    insertSemester(2,2021);
-    insertSemester(1,2022);
-    insertSemester(2,2022);
-    insertSemester(2,2020);
     insertSemester(1,2021);
+    insertSemester(1,2022);
+    insertSemester(2,2020);
+    insertSemester(2,2021);
     insertSemester(2,2022);
+    insertSemester(5,2020);
 
 
 
 
-/*
+
     insertCourse("Estructura de datos", "IC2001", 4);
     insertCourse("Programacion Orientada a Objectos", "IC2061", 3);
     insertCourse("Comunicacion Oral", "NM2001", 4);
     insertCourse("Algebra", "IC2201", 4);
     insertCourse("Ingles", "IC4001", 3);
-    */
     insertCourse("Ingles", "IC4001", 3);
 
 
@@ -641,7 +641,7 @@ int main(){
     showStudents();
     showSemesters();
     showCourses();
-    deleteCourse("IC4001");
+    deleteCourse("IC2001");
     showCourses();
 
 
