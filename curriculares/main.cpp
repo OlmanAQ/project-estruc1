@@ -150,11 +150,11 @@ struct SubListTalk{  // Work in progress
 
 struct SubListCourse{
     SubListCourse *next;  // Link to the next node (Course) in the Sub-list
-    Course *course;       // Link to the corresponding course
+    Course * enC;       // Link to the corresponding course
 
-    SubListCourse(){
+    SubListCourse(Course * c){
         next = NULL;
-        course = NULL;
+        enC = c;
     }
 
 };  // There is no "first" as such, since it is a Sub-list
@@ -518,6 +518,51 @@ bool deleteCourse(string code){  // Method that deletes a registered student fro
     return false;  // If the student is not registered, then "false" is returned
 }
 
+SubListCourse* searchCourSe(Course * auxC, Semester * auxS){
+
+
+    if(auxS->myCourses == NULL){
+        return NULL;
+    }
+
+    SubListCourse*auxLC = auxS->myCourses;
+
+
+    if(auxLC->enC->code == auxC->code){
+        return auxLC;
+    }
+
+
+    while(auxLC != NULL){
+        if(auxLC->enC->code == auxC->code){
+            return auxLC;
+        }
+        auxLC= auxLC->next;
+    }
+    return NULL;
+}
+
+
+
+bool courseSemester(int yeard, int period, string code){
+
+    Course* auxCource = searchCourse(code);
+    Semester* auxSemester = searchSemester(yeard, period);
+
+    if((auxSemester == NULL) || (auxCource == NULL)){
+        return false;
+    }
+    SubListCourse*auxL = searchCourSe(auxCource, auxSemester);
+    if(auxL != NULL){
+        return false;
+    }
+
+
+    SubListCourse*sbC = new SubListCourse(auxCource);
+    sbC->next = auxSemester->myCourses;
+    auxSemester->myCourses = sbC;
+
+}
 
 
 
@@ -558,6 +603,16 @@ void loadData(){  // Method that loads the initial data for the efficient perfor
     insertCourse("Algebra", "IC2201", 4);
     insertCourse("Ingles", "IC4001", 3);
     insertCourse("Ingles", "IC4001", 3);
+
+
+    courseSemester(2020, 1, "NM2001");
+    courseSemester(2020, 1, "NM2001");
+    courseSemester(2020, 1, "IC2001");
+    courseSemester(2021, 2, "NM2001");
+    courseSemester(2022, 5, "NM2001");
+    courseSemester(2022, 2, "IC4001");
+
+
 
 
 
@@ -634,6 +689,41 @@ void showCourses(){
     }while(aux != firstCourse);
     }
 }
+
+
+void showCourseSemester(){
+    cout<<"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Showing Courses in Semester ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+
+    Semester* auxS = firstSemester;
+
+
+    while(auxS != NULL){
+
+
+        cout << "\nYeard: " << auxS->year << endl;
+        cout << "\nPeriod: " << auxS->period << endl;
+        cout << "\n--------------------------------------------------------------------------------------" << endl;
+
+
+
+    if(auxS != NULL & auxS->myCourses != NULL){
+
+        SubListCourse*cs = auxS->myCourses;
+
+    while(cs != NULL){
+
+
+        cout << "\nCourse: " << cs->enC->name << endl;
+        cout << "\n--------------------------------------------------------------------------------------" << endl;
+        cs = cs->next;
+        }
+
+    }
+                auxS=auxS->next;
+    }
+
+}
+
 int main(){
     loadData();
     showAdmins();
@@ -641,8 +731,9 @@ int main(){
     showStudents();
     showSemesters();
     showCourses();
-    deleteCourse("IC2001");
+    //deleteCourse("IC2001");
     showCourses();
+    showCourseSemester();
 
 
 
