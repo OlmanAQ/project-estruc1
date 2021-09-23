@@ -771,16 +771,13 @@ int deleteStudentGroup(int groupId, string courseCode, int studentCard){  // Met
 
 SubListCourse* searchCourseInSemester(Course * auxC, Semester * auxS){
 
+
+
     if(auxS->myCourses == NULL){
         return NULL;
     }
 
     SubListCourse* auxLC = auxS->myCourses;
-
-
-    if(auxLC->enC->code == auxC->code){
-        return auxLC;
-    }
 
 
     while(auxLC != NULL){
@@ -811,6 +808,7 @@ int assignCourseToSemester(int yeard, int period, string code){
 
     if(auxSemester->myCourses == NULL){
         auxSemester->myCourses = newSc;
+        return 0;
     }
 
     newSc->next = auxSemester->myCourses;
@@ -884,7 +882,11 @@ void loadData(){  // Method that loads the initial data for the efficient perfor
     assignGroupToStudent(50, "IC2001", 20211406);  // Andrew  --> Data structures --> 50
     assignGroupToStudent(48, "CI1230", 20211406);  // Andrew  --> English --> 48
 
+
+
     assignCourseToSemester(2020, 1, "IC2001");
+    assignCourseToSemester(2020, 1, "IC2001");
+    assignCourseToSemester(2020, 10, "IC2001");
     assignCourseToSemester(2020, 1, "MA1103");
     assignCourseToSemester(2020, 2, "IC2001");
     assignCourseToSemester(2020, 2, "IC2101");
@@ -1075,9 +1077,10 @@ int main(){
     showAdmins();
     showTeachers();
     showStudents();
+
     showSemesters();
     showCourses();
-    */
+ */
 
     //showCoursesGroups();
     //showTeachersGroups();
