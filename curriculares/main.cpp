@@ -1106,27 +1106,34 @@ void showCourseSemester(){
 
         cout << "\nCourse: " << cs->enC->name << endl;
         cout << "\n--------------------------------------------------------------------------------------" << endl;
-        auxS=auxS->next;
+        cs=cs->next;
     }
-
+    }
+    auxS=auxS->next;
+    }
 }
+
+
+
 
 int main(){
     loadData();
 
 
-    /*
+
+
     showAdmins();
     showTeachers();
     showStudents();
 
     showSemesters();
     showCourses();
- */
 
-    //showCoursesGroups();
-    //showTeachersGroups();
-    //showStudentsGroups();
+
+    showCoursesGroups();
+    showTeachersGroups();
+    showStudentsGroups();
+    showCourseSemester();
 
     //deleteTeacherGroup(50, "IC2001", 208310022);
     //showTeachersGroups();
