@@ -355,21 +355,21 @@ bool deleteStudent(int studentCard){  // Method that deletes a registered studen
 }
 
 
-Semester* searchSemester(int year, int period){  // Falta documentar (Olman)
+Semester* searchSemester(int year, int period){  // The method that searches for a semester through its year and its period
     Semester* aux = firstSemester;
 
-    while(aux != NULL){                 // The teacher list is toured
-        if(aux->year == year && aux->period == period){  // Identifications are compared
-            return aux;                 // In case the identifications matches, then the teacher is returned
+    while(aux != NULL){                 // The semester list is toured
+        if(aux->year == year && aux->period == period){  // Years and periods are compared
+            return aux;                 // In case the years and periods match, then the semester is returned
         }
         aux = aux->next;
     }
 
-    return NULL;  // In case the teacher is not found, then "NULL" is returned
+    return NULL;  // In case the semester is not found, then "NULL" is returned
 }
 
 
-bool insertSemester( int period, int year){  // Falta documentar (Olman)
+bool insertSemester( int period, int year){  // Method that inserts a new student in the "Semester" list (ordered insertion)
 
     if(firstSemester == NULL){       // If the list is empty, then the new node is created and it becomes the first one
         Semester* newSemester = new Semester(period,year);
@@ -377,15 +377,15 @@ bool insertSemester( int period, int year){  // Falta documentar (Olman)
         return true;
     }
 
-    if(searchSemester(year, period) != NULL){  // If the given "student card" is repeated (that student is already registered) then the insertion can't be performed
+    if(searchSemester(year, period) != NULL){  // If the given "year and period" is repeated (that semester is already registered), the insertion can't be performed
         return false;                        // So, "false" is returned
     }
 
-    Semester* newSemester = new Semester(period, year);  // The new node (Student) is created
+    Semester* newSemester = new Semester(period, year);  // The new node (Semester) is created
 
-    if(year <= firstSemester->year && period < firstSemester->period ){  // Case #1: the student card of the new student is the lowest
+    if(year <= firstSemester->year && period < firstSemester->period ){  // Case #1: the year and period of the new semester are the lowest
 
-        newSemester->next = firstSemester;          // So, the new student is inserted at the beginning of the list
+        newSemester->next = firstSemester;          // So, the new semester is inserted at the beginning of the list
         firstSemester->previous =newSemester;
         firstSemester = newSemester;                // The first node is updated
         return true;
@@ -394,18 +394,18 @@ bool insertSemester( int period, int year){  // Falta documentar (Olman)
     Semester* nextAux = firstSemester->next;  // Auxiliary variable that will be useful in order to tour the list
     Semester* preAux = firstSemester;     // Auxiliary variable that will be useful in order to place the new student in the proper position
 
-    while(nextAux != NULL){                      // Case #2: the student card of the new student is not the lowest but neither the highest
-        if((year < nextAux->year) || ((year == nextAux->year) & (period < nextAux->period))){  // In this case, a loop is created in order to find the students that go before and after the new one
+    while(nextAux != NULL){                      // Case #2: the year and the period of the new semester are not the lowest but neither the highest
+        if((year < nextAux->year) || ((year == nextAux->year) & (period < nextAux->period))){  // In this case, a loop is created in order to find the semesters that go before and after the new one
             preAux->next = newSemester;       // The "preAux" node, points to the new node
-            newSemester->next = nextAux;          // The new node, points to the "aux" node
-            newSemester->previous = preAux;
-            nextAux->previous = newSemester;
+            newSemester->next = nextAux;          // The new node, points to the "nextAux" node
+            newSemester->previous = preAux;     // The new node, points to the "preAux" node
+            nextAux->previous = newSemester;    // The "nextAux" node, points to the new node
             return true;
         }
         preAux = nextAux;
         nextAux = nextAux->next;
     }
-                                // Case #3: the student card of the new student is the highest
+                                // Case #3: the year and the period of the new semester are the highest
     preAux->next = newSemester;  // So, the new student is inserted at the end of the list
     newSemester->previous =preAux;
     return true;
@@ -424,25 +424,25 @@ bool modifySemester(int y, int p, int np){  // Falta documentar (Olman)
 }
 
 
-Course* searchCourse(string code){  // Falta documentar (Olman)
+Course* searchCourse(string code){  // The method that searches for a semester through his code
     if(firstCourse->code == code){
         return firstCourse;
     }
 
     Course* aux = firstCourse->next;
 
-    while(aux != firstCourse){                       // The student list is toured
-        if(aux->code == code){  // Student cards are compared
-            return aux;                       // In case the student cards matches, then the student is returned
+    while(aux != firstCourse){                       // The course list is toured
+        if(aux->code == code){  // Codes are compared
+            return aux;                       // In case the codes match, then the course is returned
         }
         aux = aux->next;
     }
 
-    return NULL;  // In case the student is not found, then "NULL" is returned
+    return NULL;  // In case the course is not found, then "NULL" is returned
 }
 
 
-bool insertCourse(string n, string c, int credis){  // Falta documentar (Olman)
+bool insertCourse(string n, string c, int credis){  // Method that inserts a new teacher in the "Course" list (insertion at the end)
 
     if(firstCourse == NULL){       // If the list is empty, then the new node is created and it becomes the first one
         Course* newCourse = new Course(n,c,credis);
@@ -451,11 +451,11 @@ bool insertCourse(string n, string c, int credis){  // Falta documentar (Olman)
         return true;
     }
 
-    if(searchCourse(c) != NULL){  // If the given "id" is repeated (that means, that teacher is already registered) then the insertion can't be performed
+    if(searchCourse(c) != NULL){  // If the given "code" is repeated (that means, that course is already registered) then the insertion can't be performed
         return false;               // So, "false" is returned
     }
 
-    Course* newCourse = new Course(n, c, credis);  // Otherwise, the new node is inserted at the beginning of the list
+    Course* newCourse = new Course(n, c, credis);  // Otherwise, the new node is inserted at the end of the list
     Course * aux = firstCourse;
 
     while(aux->next != firstCourse){
@@ -468,23 +468,23 @@ bool insertCourse(string n, string c, int credis){  // Falta documentar (Olman)
 }
 
 
-bool modifyCourse(string code, string newName){  // Falta documentar (Olman)
+bool modifyCourse(string code, string newName){  // Method that modifies the name of a registered course
 
-    Course*aux = searchCourse(code);  // The teacher is searched using the "searchTeacher" method
+    Course*aux = searchCourse(code);  // The course is searched using the "searchCourse" method
 
     if(aux != NULL){
-        aux->name = newName;   // If the teacher is registered, then his information is modified
+        aux->name = newName;   // If the course is registered, then his information is modified
         return true;
     }
 
-    return false;  // If the teacher is not registered, then "false" is returned
+    return false;  // If the course is not registered, then "false" is returned
 }
 
 
-bool deleteCourse(string code){        // Falta documentar (Olman)
-    Course* aux = searchCourse(code);  // The student is searched using the "searchStudent" method
+bool deleteCourse(string code){        // Method that deletes a registered course from the list
+    Course* aux = searchCourse(code);  // The course is searched using the "searchCourse" method
 
-    if(aux != NULL){  // If the student is registered, then it will be deleted
+    if(aux != NULL){  // If the course is registered, then it will be deleted
 
         if(aux == firstCourse){  // It is validated if it was the first node
             if(aux->next == firstCourse){
@@ -503,16 +503,16 @@ bool deleteCourse(string code){        // Falta documentar (Olman)
             return true;
         }
 
-        Course* preAux = firstCourse;  // Auxiliary variable that will be useful in order to find the student that goes before the student we want to delete
+        Course* preAux = firstCourse;  // Auxiliary variable that will be useful in order to find the course that goes before the course we want to delete
 
-        while(preAux->next != aux){  // Loop that finds the student who goes before the student we want to delete
+        while(preAux->next != aux){  // Loop that finds the course who goes before the student we want to delete
             preAux = preAux->next;
         }
-        preAux->next = aux->next;    // Finally, the student is deleted from the list
+        preAux->next = aux->next;    // Finally, the course is deleted from the list
         return true;
     }
 
-    return false;  // If the student is not registered, then "false" is returned
+    return false;  // If the course is not registered, then "false" is returned
 }
 
 SubListCourse* searchCourSe(Course * auxC, Semester * auxS){
