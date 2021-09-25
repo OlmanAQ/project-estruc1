@@ -65,14 +65,16 @@ struct Student{
 struct Semester{
     int period;
     int year;
+    string modality;
     Semester* next;      // Link to the next node (Semester) in the list
     Semester* previous;  // Link to the previous node (Semester) in the list
     struct SubListCourse* myCourses;  // Link to the courses that are offered in that semester
     struct SubListTalks* myTalks;     // Link to the general talks that take place in that semester
 
-    Semester(int p, int y){
+    Semester(int p, int y, string m){
         period = p;
         year = y;
+        modality = m;
         next = NULL;
         previous = NULL;
         myCourses = NULL;
@@ -163,6 +165,16 @@ struct SubListCourse{
 
 
 //------------------------------------------ End of structures --> Start of methods ------------------------------------------
+
+//---------------------------------------------------- Needed prototypes -----------------------------------------------------
+void mainMenu();
+void login();
+void adminsMenu();
+void managementTS();
+void managementSC();
+void managementGroups();
+
+//----------------------------------------------------------------------------------------------------------------------------
 
 
 Administrator* searchAdmin(string password){  // Method that search for an administrator through his password
@@ -369,10 +381,10 @@ Semester* searchSemester(int year, int period){  // The method that searches for
 }
 
 
-bool insertSemester( int period, int year){  // Method that inserts a new student in the "Semester" list (ordered insertion)
+bool insertSemester( int period, int year, string modality){   // Method that inserts a new semester in the "Semester" list (ordered insertion)
 
     if(firstSemester == NULL){       // If the list is empty, then the new node is created and it becomes the first one
-        Semester* newSemester = new Semester(period,year);
+        Semester* newSemester = new Semester(period, year, modality);
         firstSemester = newSemester;  // The first node is updated
         return true;
     }
@@ -381,7 +393,7 @@ bool insertSemester( int period, int year){  // Method that inserts a new studen
         return false;                        // So, "false" is returned
     }
 
-    Semester* newSemester = new Semester(period, year);  // The new node (Semester) is created
+    Semester* newSemester = new Semester(period, year, modality);  // The new node (Semester) is created
 
     if(year <= firstSemester->year && period < firstSemester->period ){  // Case #1: the year and period of the new semester are the lowest
 
@@ -412,11 +424,11 @@ bool insertSemester( int period, int year){  // Method that inserts a new studen
 }
 
 
-bool modifySemester(int y, int p, int np){  // Falta documentar (Olman)
+bool modifySemester(int y, int p, string newModality){  // Falta documentar (Olman)
     Semester* aux = searchSemester(y,p);  // The teacher is searched using the "searchTeacher" method
 
     if(aux != NULL){
-        aux->period = np;   // If the teacher is registered, then his information is modified
+        aux->modality = newModality;   // If the teacher is registered, then his information is modified
         return true;
     }
 
@@ -816,14 +828,11 @@ int deleteStudentGroup(int groupId, string courseCode, int studentCard){  // Met
 
 SubListCourse* searchCourseInSemester(Course * auxC, Semester * auxS){
 
-
-
     if(auxS->myCourses == NULL){
         return NULL;
     }
 
     SubListCourse* auxLC = auxS->myCourses;
-
 
     while(auxLC != NULL){
         if(auxLC->enC->code == auxC->code){
@@ -881,12 +890,12 @@ void loadData(){  // Method that loads the initial data for the efficient perfor
     insertStudent("Helena", 20211909, "Alajuela");
     insertStudent("Andrew", 20211406, "San Carlos");
 
-    insertSemester(1,2020);
-    insertSemester(1,2021);
-    insertSemester(1,2022);
-    insertSemester(2,2020);
-    insertSemester(2,2021);
-    insertSemester(2,2022);
+    insertSemester(1, 2021, "virtual");
+    insertSemester(2, 2021, "virtual");
+    insertSemester(1, 2022, "virtual");
+    insertSemester(2, 2022, "virtual");
+    insertSemester(1, 2023, "virtual");
+    insertSemester(2, 2023, "virtual");
 
     insertCourse("Data structures", "IC2001", 4);
     insertCourse("Object-oriented programming", "IC2101", 4);
@@ -927,20 +936,23 @@ void loadData(){  // Method that loads the initial data for the efficient perfor
     assignGroupToStudent(50, "IC2001", 20211406);  // Andrew  --> Data structures --> 50
     assignGroupToStudent(48, "CI1230", 20211406);  // Andrew  --> English --> 48
 
+    assignCourseToSemester(2021, 1, "IC2001");  // Data structures --> first period --> 2021
+    assignCourseToSemester(2021, 1, "IC2101");  // Object-oriented programming --> first period --> 2021
+    assignCourseToSemester(2021, 1, "MA1103");  // Algebra --> first period --> 2021
+    assignCourseToSemester(2021, 1, "CI1107");  // Oral Communication --> first period --> 2021
+    assignCourseToSemester(2021, 1, "CI1230");  // English --> first period --> 2021
+    assignCourseToSemester(2021, 2, "IC2001");  // Data structures --> second period --> 2021
+    assignCourseToSemester(2021, 2, "CI1230");  // English --> second period --> 2021
 
+    assignCourseToSemester(2022, 1, "IC2001");  // Data structures --> first period --> 2022
+    assignCourseToSemester(2022, 1, "CI1107");  // Oral communication --> first period --> 2022
+    assignCourseToSemester(2022, 2, "IC2001");  // Data structures --> second period --> 2022
+    assignCourseToSemester(2022, 2, "CI1230");  // English --> second period --> 2022
 
-    assignCourseToSemester(2020, 1, "IC2001");
-    assignCourseToSemester(2020, 1, "IC2001");
-    assignCourseToSemester(2020, 10, "IC2001");
-    assignCourseToSemester(2020, 1, "MA1103");
-    assignCourseToSemester(2020, 2, "IC2001");
-    assignCourseToSemester(2020, 2, "IC2101");
-    assignCourseToSemester(2021, 1, "IC2001");
-    assignCourseToSemester(2021, 2, "IC2001");
-    assignCourseToSemester(2022, 1, "IC2001");
-    assignCourseToSemester(2022, 2, "IC2001");
-    assignCourseToSemester(2022, 2, "CI1107");
-    assignCourseToSemester(2022, 2, "CI1230");
+    assignCourseToSemester(2023, 1, "IC2001");  // Data structures --> first period --> 2023
+    assignCourseToSemester(2023, 1, "MA1103");  // Algebra --> first period --> 2023
+    assignCourseToSemester(2023, 2, "IC2001");  // Data structures --> second period --> 2023
+    assignCourseToSemester(2023, 2, "IC2101");  // Object-oriented programming --> second period --> 2023
 
 
 }
@@ -1114,11 +1126,589 @@ void showCourseSemester(){
 }
 
 
+void studentsMenu(){  // Work in progress
+    system("CLS");
+    char k = '0';
+
+    cout << endl <<"----------------------------->> Student´s Menu <<-----------------------------" << endl;
+    cout << endl <<"                              Select one section \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"1. ---> Teachers \n";
+    cout << endl <<"2. ---> Students \n";
+    cout << endl <<"3. ---> Turn back \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"Option: ";
+    cin >> k;
+
+}
+
+
+void teachersMenu(){  // Work in progress
+    system("CLS");
+    char k = '0';
+
+    cout << endl <<"----------------------------->> Teacher´s Menu <<-----------------------------" << endl;
+    cout << endl <<"                              Select one section \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"1. ---> Teachers \n";
+    cout << endl <<"2. ---> Students \n";
+    cout << endl <<"3. ---> Turn back \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"Option: ";
+    cin >> k;
+
+}
+
+
+void usersMenu(){
+    system("CLS");
+    char k = '0';
+
+    cout << endl <<"------------------------------->> Users Menu <<-------------------------------" << endl;
+    cout << endl <<"                              Select one section \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"1. ---> Teachers \n";
+    cout << endl <<"2. ---> Students \n";
+    cout << endl <<"3. ---> Turn back \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"Option: ";
+    cin >> k;
+
+    if(k == '1'){
+        teachersMenu();
+
+    } else if(k == '2'){
+        studentsMenu();
+
+    } else if(k == '3'){
+        mainMenu();
+
+    } else{
+        usersMenu();
+    }
+
+}
+
+
+void registerAdmin(){
+    system("CLS");
+    cout << endl <<"----------------------->> Registering a new administrator <<-----------------------" << endl;
+    string name;
+    string password;
+    char k = '0';
+
+    cout << endl <<"---> Type the new administrator's name: ";
+    cin >> name;
+
+    cout << endl <<"---> Type the new administrator's password: ";
+    cin >> password;
+
+    if(insertAdmin(name, password)){
+        cout << endl <<"\n~ Administrator has been registered successfully! \n";
+        cout << endl <<"~ Press any key to continue: ";
+        cin >> k;
+        adminsMenu();
+
+    } else{
+        cout << endl <<"\n----------------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"*** It was not possible to register, that password belongs to a registered administrator ***\n";
+        cout << endl <<"----------------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"---> Digit 1: to try again \n";
+        cout << endl <<"---> Press a different key to turn back \n";
+        cout << endl <<"Option: ";
+        cin >> k;
+
+        if(k == '1'){
+            registerAdmin();
+
+        } else{
+            adminsMenu();
+        }
+    }
+
+}
+
+
+void registerTeacher(){
+    system("CLS");
+    cout << endl <<"-------------------------->> Registering a new teacher <<--------------------------" << endl;
+    string name;
+    int id;
+    string location;
+    char k = '0';
+
+    cout << endl <<"---> Type the new teacher's name: ";
+    cin >> name;
+
+    cout << endl <<"---> Type the new teacher's identification: ";
+    cin >> id;
+
+    cout << endl <<"---> Type the new teacher's location: ";
+    cin >> location;
+
+    if(insertTeacher(name, id, location)){
+        cout << endl <<"\n~ Teacher has been registered successfully! \n";
+        cout << endl <<"~ Press any key to continue: ";
+        cin >> k;
+        managementTS();
+
+    } else{
+        cout << endl <<"\n---------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"****** It was not possible to register, because that teacher is already registered ******\n";
+        cout << endl <<"******               ~You should try to use another identification~                ******\n";
+        cout << endl <<"-----------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"---> Digit 1: to try again \n";
+        cout << endl <<"---> Press a different key to turn back \n";
+        cout << endl <<"Option: ";
+        cin >> k;
+
+        if(k == '1'){
+            registerTeacher();
+
+        } else{
+            managementTS();
+        }
+    }
+
+}
+
+
+void modifyingTeacher(){
+    system("CLS");
+    cout << endl <<"-------------------------->> Modifying a teacher <<--------------------------" << endl;
+    int id;
+    string newLocation;
+    char k = '0';
+
+    cout << endl <<"---> Type the teacher's identification: ";
+    cin >> id;
+
+    cout << endl <<"---> Type the teacher's new location: ";
+    cin >> newLocation;
+
+    if(modifyTeacher(id, newLocation)){
+        cout << endl <<"\n~ Changes have been made successfully! \n";
+        cout << endl <<"~ Press any key to continue: ";
+        cin >> k;
+        managementTS();
+
+    } else{
+        cout << endl <<"\n---------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"******    It was not possible to modify, because that teacher is not registered    ******\n";
+        cout << endl <<"-----------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"---> Digit 1: to try again \n";
+        cout << endl <<"---> Press a different key to turn back \n";
+        cout << endl <<"Option: ";
+        cin >> k;
+
+        if(k == '1'){
+            modifyingTeacher();
+
+        } else{
+            managementTS();
+        }
+    }
+}
+
+
+void removeTeacher(){
+    system("CLS");
+    cout << endl <<"-------------------------->> Removing a teacher <<--------------------------" << endl;
+    int id;
+    char k = '0';
+
+    cout << endl <<"---> Type the teacher's identification: ";
+    cin >> id;
+
+    if(deleteTeacher(id)){
+        cout << endl <<"\n~ Teacher has been removed successfully! \n";
+        cout << endl <<"~ Press any key to continue: ";
+        cin >> k;
+        managementTS();
+
+    } else{
+        cout << endl <<"\n---------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"******    It was not possible to remove, because that teacher is not registered    ******\n";
+        cout << endl <<"-----------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"---> Digit 1: to try again \n";
+        cout << endl <<"---> Press a different key to turn back \n";
+        cout << endl <<"Option: ";
+        cin >> k;
+
+        if(k == '1'){
+            removeTeacher();
+
+        } else{
+            managementTS();
+        }
+    }
+}
+
+
+void registerStudent(){
+    system("CLS");
+    cout << endl <<"-------------------------->> Registering a new student <<--------------------------" << endl;
+    string name;
+    int sc;
+    string location;
+    char k = '0';
+
+    cout << endl <<"---> Type the new student's name: ";
+    cin >> name;
+
+    cout << endl <<"---> Type the new student's student card: ";
+    cin >> sc;
+
+    cout << endl <<"---> Type the new student's location: ";
+    cin >> location;
+
+    if(insertStudent(name, sc, location)){
+        cout << endl <<"\n~ Student has been registered successfully! \n";
+        cout << endl <<"~ Press any key to continue: ";
+        cin >> k;
+        managementTS();
+
+    } else{
+        cout << endl <<"\n---------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"****** It was not possible to register, because that student is already registered ******\n";
+        cout << endl <<"******                ~You should try to use another student card~                 ******\n";
+        cout << endl <<"-----------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"---> Digit 1: to try again \n";
+        cout << endl <<"---> Press a different key to turn back \n";
+        cout << endl <<"Option: ";
+        cin >> k;
+
+        if(k == '1'){
+            registerStudent();
+
+        } else{
+            managementTS();
+        }
+    }
+}
+
+
+void modifyingStudent(){
+    system("CLS");
+    cout << endl <<"-------------------------->> Modifying a student <<--------------------------" << endl;
+    int sc;
+    string newLocation;
+    char k = '0';
+
+    cout << endl <<"---> Type the student's student card: ";
+    cin >> sc;
+
+    cout << endl <<"---> Type the student's new location: ";
+    cin >> newLocation;
+
+    if(modifyStudent(sc, newLocation)){
+        cout << endl <<"\n~ Changes have been made successfully! \n";
+        cout << endl <<"~ Press any key to continue: ";
+        cin >> k;
+        managementTS();
+
+    } else{
+        cout << endl <<"\n---------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"******    It was not possible to modify, because that student is not registered    ******\n";
+        cout << endl <<"-----------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"---> Digit 1: to try again \n";
+        cout << endl <<"---> Press a different key to turn back \n";
+        cout << endl <<"Option: ";
+        cin >> k;
+
+        if(k == '1'){
+            modifyingStudent();
+
+        } else{
+            managementTS();
+        }
+    }
+}
+
+
+void removeStudent(){
+    system("CLS");
+    cout << endl <<"-------------------------->> Removing a student <<--------------------------" << endl;
+    int sc;
+    char k = '0';
+
+    cout << endl <<"---> Type the student's student card: ";
+    cin >> sc;
+
+    if(deleteStudent(sc)){
+        cout << endl <<"\n~ Student has been removed successfully! \n";
+        cout << endl <<"~ Press any key to continue: ";
+        cin >> k;
+        managementTS();
+
+    } else{
+        cout << endl <<"\n---------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"******    It was not possible to remove, because that student is not registered    ******\n";
+        cout << endl <<"-----------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"---> Digit 1: to try again \n";
+        cout << endl <<"---> Press a different key to turn back \n";
+        cout << endl <<"Option: ";
+        cin >> k;
+
+        if(k == '1'){
+            removeStudent();
+
+        } else{
+            managementTS();
+        }
+    }
+}
+
+
+void managementTS(){
+    system("CLS");
+    char k = '0';
+
+    cout << endl <<"------------------------>> Teacher and Students Management <<------------------------" << endl;
+    cout << endl <<"                                  Select an option \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"1. ---> Register a new teacher \n";
+    cout << endl <<"2. ---> Modify the location of a registered teacher \n";
+    cout << endl <<"3. ---> Remove a teacher \n";
+    cout << endl <<"4. ---> Register a new student \n";
+    cout << endl <<"5. ---> Modify the location of a registered student \n";
+    cout << endl <<"6. ---> Remove a student \n";
+    cout << endl <<"7. ---> Turn back \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"Option: ";
+    cin >> k;
+
+    if(k == '1'){
+        registerTeacher();
+
+    } else if(k == '2'){
+        modifyingTeacher();
+
+    } else if(k == '3'){
+        removeTeacher();
+
+    } else if(k == '4'){
+        registerStudent();
+
+    } else if(k == '5'){
+        modifyingStudent();
+
+    } else if(k == '6'){
+        removeStudent();
+
+    } else if(k == '7'){
+        adminsMenu();
+
+    } else{
+        managementTS();
+    }
+}
+
+
+void managementSC(){
+    system("CLS");
+    char k = '0';
+
+    cout << endl <<"------------------------>> Semester and Courses Management <<------------------------" << endl;
+    cout << endl <<"                                  Select an option \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"1. ---> Register a new semester \n";
+    cout << endl <<"2. ---> Modify a registered semester \n";
+    cout << endl <<"3. ---> Register a new course \n";
+    cout << endl <<"4. ---> Modify a registered course \n";
+    cout << endl <<"5. ---> Remove a course \n";
+    cout << endl <<"6. ---> Assign a course to a semester \n";
+    cout << endl <<"7. ---> Turn back \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"Option: ";
+    cin >> k;
+
+    if(k == '1'){
+        cout << "hola";
+
+    } else if(k == '2'){
+        cout << "hola";
+
+    } else if(k == '3'){
+        cout << "hola";
+
+    } else if(k == '4'){
+        cout << "hola";
+
+    } else if(k == '5'){
+        cout << "hola";
+
+    } else if(k == '6'){
+        cout << "hola";
+
+    } else if(k == '7'){
+        adminsMenu();
+
+    } else{
+        managementSC();
+    }
+
+}
+
+
+void managementGroups(){
+    system("CLS");
+    char k = '0';
+
+    cout << endl <<"----------------------------->> Groups Management <<-----------------------------" << endl;
+    cout << endl <<"                                Select an option \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"1. ---> Register a new group \n";
+    cout << endl <<"2. ---> Assign group to a teacher \n";
+    cout << endl <<"3. ---> Remove a teacher from a group \n";
+    cout << endl <<"4. ---> Assign group to a student \n";
+    cout << endl <<"5. ---> Remove a student from a group \n";
+    cout << endl <<"6. ---> Turn back \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"Option: ";
+    cin >> k;
+
+    if(k == '1'){
+        cout << "hola";
+
+    } else if(k == '2'){
+        cout << "hola";
+
+    } else if(k == '3'){
+        cout << "hola";
+
+    } else if(k == '4'){
+        cout << "hola";
+
+    } else if(k == '5'){
+        cout << "hola";
+
+    } else if(k == '6'){
+        adminsMenu();
+
+    } else{
+        managementGroups();
+    }
+
+}
+
+
+void adminsMenu(){
+    system("CLS");
+    char k = '0';
+
+    cout << endl <<"--------------------------->> Administrators Menu <<---------------------------" << endl;
+    cout << endl <<"                               Select an option \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"1. ---> Register a new administrator \n";
+    cout << endl <<"2. ---> Manage teacher and students \n";
+    cout << endl <<"3. ---> Manage semester and courses \n";
+    cout << endl <<"4. ---> Manage groups \n";
+    cout << endl <<"5. ---> Turn back \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"Option: ";
+    cin >> k;
+
+    if(k == '1'){
+        registerAdmin();
+
+    } else if(k == '2'){
+        managementTS();
+
+    } else if(k == '3'){
+        managementSC();
+
+    } else if(k == '4'){
+        managementGroups();
+
+    } else if(k == '5'){
+        mainMenu();
+
+    } else{
+        adminsMenu();
+    }
+
+}
+
+
+void tryPassword(){
+    system("CLS");
+    char k = '0';
+
+    cout << endl <<"--------------------------------------------------------------------------------------" << endl;
+    cout << endl <<"********************************** Invalid password **********************************" << endl;
+    cout << endl <<"--------------------------------------------------------------------------------------" << endl;
+    cout << endl <<"---> Digit 1: to try again \n";
+    cout << endl <<"---> Digit 2: to turn back to main menu \n";
+    cout << endl <<"Option: ";
+    cin >> k;
+
+    if(k == '1'){
+        login();
+
+    } else if(k == '2'){
+        mainMenu();
+
+    } else{
+        tryPassword();
+    }
+
+}
+
+
+void login(){
+    system("CLS");
+    string password;
+
+    cout << endl <<"--------------------------------------------------------------------------------------------" << endl;
+    cout << endl <<" You have selected the administrator section, so we have to verify you are an administrator " << endl;
+    cout << endl <<"--------------------------------------------------------------------------------------------" << endl;
+    cout << endl <<"Please type your password: ";
+    cin >> password;
+
+    if(searchAdmin(password) == NULL){
+        tryPassword();
+    } else{
+        adminsMenu();
+    }
+
+}
+
+
+void mainMenu(){
+    system("CLS");
+    char k = '0';
+
+    cout << endl <<"------------------------------->> Main Menu <<-------------------------------" << endl;
+    cout << endl <<"                             Select one section \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"1. ---> Administrators \n";
+    cout << endl <<"2. ---> Users \n";
+    cout << endl <<"3. ---> Exit \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"Option: ";
+    cin >> k;
+
+    if(k == '1'){
+        login();
+
+    } else if(k == '2'){
+        usersMenu();
+
+    } else if(k == '3'){
+        system("CLS");
+        return;
+
+    } else{
+        mainMenu();
+    }
+
+}
 
 
 int main(){
     loadData();
-
+    mainMenu();
 
 
 
@@ -1129,11 +1719,10 @@ int main(){
     showSemesters();
     showCourses();
 
-
-    showCoursesGroups();
-    showTeachersGroups();
-    showStudentsGroups();
-    showCourseSemester();
+    //showCoursesGroups();
+    //showTeachersGroups();
+    //showStudentsGroups();
+    //showCourseSemester();
 
     //deleteTeacherGroup(50, "IC2001", 208310022);
     //showTeachersGroups();
