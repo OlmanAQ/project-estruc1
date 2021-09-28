@@ -69,7 +69,7 @@ struct Semester{
     Semester* next;      // Link to the next node (Semester) in the list
     Semester* previous;  // Link to the previous node (Semester) in the list
     struct SubListCourse* myCourses;  // Link to the courses that are offered in that semester
-    struct SubListTalks* myTalks;     // Link to the general talks that take place in that semester
+    struct SubListTalk* myTalks;     // Link to the general talks that take place in that semester
 
     Semester(int p, int y, string m){
         period = p;
@@ -142,12 +142,25 @@ struct SubListGroup{
 
 
 struct SubListTalk{  // Work in progress
+    int id;
     string name;
-    //bool status; ?
-    //Date
+    int year;
+    int month;
+    int day;
+    int hour;
     SubListTalk* next;  // Link to the next node (Talk) in the Sub-list
 
+
     //Constructor
+    SubListTalk(int i, string n, int y, int m, int d, int h){
+        name = n;
+        year = y;
+        month = m;
+        day = d;
+        id = i;
+        hour = h;
+        next = NULL;
+    }
 
 };  // There is no "first" as such, since it is a Sub-list
 
@@ -388,8 +401,11 @@ bool insertSemester( int period, int year, string modality){   // Method that in
         return true;
     }
 
-    if(searchSemester(year, period) != NULL){  // If the given "year and period" is repeated (that semester is already registered), the insertion can't be performed
+    if(searchSemester(year, period) != NULL ){  // If the given "year and period" is repeated (that semester is already registered), the insertion can't be performed
         return false;                        // So, "false" is returned
+    }
+    if(period != 1 && period != 2){
+        return false;
     }
 
     Semester* newSemester = new Semester(period, year, modality);  // The new node (Semester) is created
@@ -824,6 +840,67 @@ int assignCourseToSemester(int yeard, int period, string code){
 }
 
 
+//K
+SubListTalk* searchTalkSemester(Semester* auxS, int id){
+    SubListTalk*auxT = auxS->myTalks;
+    while(auxT != NULL){
+        if(id == auxT->id){
+            return auxT;
+        }
+        auxT = auxT->next;
+    }
+    return NULL;
+}
+
+int assignTalkToSemester(int id, int yeard, int period, string name, int y, int m, int d, int h){
+
+    Semester*auxS = searchSemester(yeard, period);
+    if(auxS == NULL){
+        return 1;
+    }
+    if(yeard != y){
+        return 3;
+    }
+    if((m>12) || (d>31)){
+        return 4;
+    }
+    if(((period==1) && (m > 6)) || ((period==2) && (m <= 6))){
+        return 5;
+    }
+    SubListTalk*aux = searchTalkSemester(auxS, id);
+    if(aux != NULL){
+        return 2;
+    }
+    else{
+        SubListTalk*newTalk = new SubListTalk(id, name, y, m, d, h);
+        if(auxS->myTalks == NULL){
+            auxS->myTalks = newTalk;
+            return 0;
+        }
+        SubListTalk* auxT = auxS->myTalks;
+
+        if((m < auxT->month) || ((m == auxT->month) && (d <= auxT->day))){
+            newTalk->next = auxT;
+            auxS->myTalks = newTalk;
+            return 0;
+        }
+        SubListTalk* auxTNext = auxS->myTalks->next;
+        while(auxTNext != NULL){
+            if((m < auxTNext->month) || ((m == auxTNext->month) && (d <= auxTNext->day ))){
+                auxT->next = newTalk;
+                newTalk->next = auxTNext;
+                return 0;
+            }
+            auxT = auxTNext;
+            auxTNext = auxTNext->next;
+        }
+        auxT->next = newTalk;
+        return 0;
+    }
+}
+
+
+
 void loadData(){  // Method that loads the initial data for the efficient performance of the application
     insertAdmin("Hugo Mendez", "ladiv2002");
     insertAdmin("Olman", "olmanAQ");
@@ -908,6 +985,18 @@ void loadData(){  // Method that loads the initial data for the efficient perfor
     assignCourseToSemester(2023, 1, "MA1103");  // Algebra --> first period --> 2023
     assignCourseToSemester(2023, 2, "IC2001");  // Data structures --> second period --> 2023
     assignCourseToSemester(2023, 2, "IC2101");  // Object-oriented programming --> second period --> 2023
+
+    assignTalkToSemester(1, 2021, 1, "Alimentos Saludables", 2021, 2, 5, 9);
+    assignTalkToSemester(2, 2021, 1, "Odontologia", 2021, 3, 5,  10);
+
+
+    assignTalkToSemester(1, 2021, 2, "Habitos saludables", 2021, 8, 5, 13);
+    assignTalkToSemester(2, 2021, 2, "Psicologia", 2021, 7, 1, 15);
+    assignTalkToSemester(3, 2021, 2, "Robots", 2021, 9, 7, 11);
+    assignTalkToSemester(4, 2021, 2, "Ejercicios", 2021, 7, 2,  10);
+    assignTalkToSemester(5, 2021, 2, "Alimentos Saludables", 2021, 11, 5, 9);
+
+
 
 }
 
@@ -1063,7 +1152,7 @@ void showCoursesSemesters(){
 
 
 
-    if(auxS != NULL & auxS->myCourses != NULL){
+    if(auxS != NULL && auxS->myCourses != NULL){
 
         SubListCourse*cs = auxS->myCourses;
 
@@ -1079,12 +1168,37 @@ void showCoursesSemesters(){
     }
 }
 
+void showTalkSemester(){
+    cout<<"\n~~~~~~~~ Showing Talks in Semester ~~~~~~~~\n";
+
+    Semester* auxS = firstSemester;
+
+    while(auxS != NULL){
+
+        cout << "\nSemester" << endl;
+        cout << "\nYeard: " << auxS->year << endl;
+        cout << "\nPeriod: " << auxS->period << endl;
+        cout<<"\nTalks" << endl;
+        SubListTalk*TS = auxS->myTalks;
+
+        while(TS != NULL){
+            cout << "\nName: " << TS->name << endl;
+            cout << "\nDate: " << TS->day << "/" << TS->month << "/" << TS->year << endl;
+            cout << "\n--------------------------------------------------------------------------------------" << endl;
+            TS=TS->next;
+        }
+        auxS=auxS->next;
+    }
+    cout << "\n--------------------------------------------------------------------------------------" << endl;
+}
+
+
 
 void studentsMenu(){  // Work in progress
     system("CLS");
     char k = '0';
 
-    cout << endl <<"----------------------------->> Student´s Menu <<-----------------------------" << endl;
+    cout << endl <<"------------------------------>> Student Menu <<------------------------------" << endl;
     cout << endl <<"                              Select one section \n";
     cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
     cout << endl <<"1. ---> Teachers \n";
@@ -1101,7 +1215,7 @@ void teachersMenu(){  // Work in progress
     system("CLS");
     char k = '0';
 
-    cout << endl <<"----------------------------->> Teacher´s Menu <<-----------------------------" << endl;
+    cout << endl <<"------------------------------>> Teacher Menu <<------------------------------" << endl;
     cout << endl <<"                              Select one section \n";
     cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
     cout << endl <<"1. ---> Teachers \n";
@@ -1412,6 +1526,10 @@ void removeStudent(){
         }
     }
 }
+
+
+
+
 
 
 void managementTS(){
@@ -2226,9 +2344,14 @@ void mainMenu(){
 
 int main(){
     loadData();
-    mainMenu();
+    //mainMenu();
 
-    /*
+
+    showTalkSemester();
+    //mainMenu();
+
+
+/*
     showAdmins();
     showTeachers();
     showStudents();
