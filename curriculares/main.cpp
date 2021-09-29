@@ -946,34 +946,51 @@ int assignTalkToSemester(int id, int year, int period, string name, int y, int m
 
 
 bool modifyTalk(int id, string newName, int year, int period){  // Method that modifies the name of a registered talks
+    Semester*auxS = searchSemester(year, period);
+    if(auxS == NULL){
+        return false;
+    }
 
-/*
-    Course*aux = searchCourse(code);  // The course is searched using the "searchCourse" method
+    SubListTalk*aux = searchTalkSemester(auxS, id);  // The course is searched using the "searchCourse" method
 
     if(aux != NULL){
         aux->name = newName;   // If the course is registered, then his information is modified
         return true;
     }
 
-    return false;  // If the course is not registered, then "false" is returned
-    */
-    return false;
+    return false;  // If the course is not registered, then "false" is returne
 }
 
 
 int deleteTalk(int id, int year, int period){  // Method that modifies the name of a registered talks
 
-/*
-    Course*aux = searchCourse(code);  // The course is searched using the "searchCourse" method
-
-    if(aux != NULL){
-        aux->name = newName;   // If the course is registered, then his information is modified
-        return true;
+Semester*auxS = searchSemester(year, period);
+    if(auxS == NULL){
+        return 1;
     }
 
-    return false;  // If the course is not registered, then "false" is returned
-    */
-    return 1;
+    SubListTalk*talkDelete = searchTalkSemester(auxS, id);  // The course is searched using the "searchCourse" method
+
+    if(talkDelete == NULL){
+       return 2;
+    }
+
+    if(talkDelete == auxS->myTalks){       // En caso de que sea el primer elemento
+        auxS->myTalks = talkDelete->next;
+        return 0;
+    }
+
+    SubListTalk* preTalk = auxS->myTalks;   // En caso de que sea un elemento medio o el último
+
+    while(preTalk->next != talkDelete){
+        preTalk = preTalk->next;
+    }
+
+    preTalk->next = talkDelete->next;
+    return 0;
+
+
+
 }
 
 
@@ -2656,8 +2673,11 @@ void mainMenu(){
 
 int main(){
     loadData();
-    mainMenu();
-
+    //mainMenu();
+    modifyTalk(1,"ABCD", 2021, 2);
+    showTalkSemester();
+    deleteTalk(1, 2021, 2);
+    showTalkSemester();
 
 /*
     showAdmins();
