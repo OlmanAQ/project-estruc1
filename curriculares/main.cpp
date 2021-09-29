@@ -863,9 +863,54 @@ SubListAssignment* searchAssignment(SubListGroup* group, int id, string kind){
 
 
 int assignAssignment(Teacher* teacher, string courseCode, int idG, int idA, string kind, string name, int day, int month, int year, int hour){
-    return 2;
 
+    if(teacher == NULL){
+        return 1;
+    }
+
+    Course*auxC = searchCourse(courseCode);
+
+    SubListGroup*auxG = searchGroupInTeacher(idG, auxC, teacher);
+    if(auxG == NULL){
+        return 2;
+    }
+    //si lo tiene asignado
+    Asignaciones *nn = new Asignaciones(id,nom,p,d,m,year);
+    //ocupo saber en cual de las cuatros  sublista es
+    if(tipo == "Proyecto" ){
+            nn->sig = auxG->enlace->subListaProyectos;
+            auxG->enlace->subListaProyectos = nn;
+    }
+    else if(tipo == "Tarea" ){
+        nn->sig = auxG->enlace->subListaTareas;
+        auxG->enlace->subListaTareas = nn;
+    }
+    else if(tipo == "Giras" ){
+        nn->sig = auxG->enlace->subListaGiras;
+        auxG->enlace->subListaGiras = nn;
+    }
+    else if(tipo == "Examen" ){
+        nn->sig = auxG->enlace->subListaExamen;
+        auxG->enlace->subListaExamen = nn;
+    }
+    else{
+                        cout<<"El tipo de asignacion no existe";
+                        return;
+
+                    }
+                    cout<<"Se inserto la asignacion correctamente";
+                    break;//se sale cuando lo inserta
+                }
+
+        auxG = auxG->sig;
+    }
+    if(auxG == NULL){
+
+        cout<<"No tiene el curso asignado";
+        return;
+    }
 }
+
 
 
 int modifyAssignment(Teacher* teacher, string courseCode, int idG, int idA, string kind, string newName){
@@ -964,7 +1009,7 @@ bool modifyTalk(int id, string newName, int year, int period){  // Method that m
 
 int deleteTalk(int id, int year, int period){  // Method that modifies the name of a registered talks
 
-Semester*auxS = searchSemester(year, period);
+    Semester*auxS = searchSemester(year, period);
     if(auxS == NULL){
         return 1;
     }
@@ -2673,11 +2718,8 @@ void mainMenu(){
 
 int main(){
     loadData();
-    //mainMenu();
-    modifyTalk(1,"ABCD", 2021, 2);
-    showTalkSemester();
-    deleteTalk(1, 2021, 2);
-    showTalkSemester();
+    mainMenu();
+
 
 /*
     showAdmins();
