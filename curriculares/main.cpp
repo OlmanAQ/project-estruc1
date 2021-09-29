@@ -141,7 +141,7 @@ struct SubListGroup{
 };  // There is no "first" as such, since it is a Sub-list
 
 
-struct SubListTalk{  // Work in progress
+struct SubListTalk{
     int id;
     string name;
     int year;
@@ -186,6 +186,12 @@ void adminsMenu();
 void managementTS();
 void managementSC();
 void managementGroups();
+void usersMenu();
+void usersLogin(int section);
+void teachersMenu(Teacher* teacher);
+void studentsMenu(Student* student);
+void managementAssignments(Teacher* teacher);
+void managementTalks();
 //----------------------------------------------------------------------------------------------------------------------------
 
 
@@ -840,7 +846,6 @@ int assignCourseToSemester(int yeard, int period, string code){
 }
 
 
-//K
 SubListTalk* searchTalkSemester(Semester* auxS, int id){
     SubListTalk*auxT = auxS->myTalks;
     while(auxT != NULL){
@@ -852,25 +857,31 @@ SubListTalk* searchTalkSemester(Semester* auxS, int id){
     return NULL;
 }
 
-int assignTalkToSemester(int id, int yeard, int period, string name, int y, int m, int d, int h){
 
+int assignTalkToSemester(int id, int yeard, int period, string name, int y, int m, int d, int h){
     Semester*auxS = searchSemester(yeard, period);
+
     if(auxS == NULL){
         return 1;
     }
     if(yeard != y){
-        return 3;
-    }
-    if((m>12) || (d>31)){
-        return 4;
-    }
-    if(((period==1) && (m > 6)) || ((period==2) && (m <= 6))){
-        return 5;
-    }
-    SubListTalk*aux = searchTalkSemester(auxS, id);
-    if(aux != NULL){
         return 2;
     }
+    if((m>12) || (d>31)){
+        return 3;
+    }
+    if(((period==1) && (m > 6)) || ((period==2) && (m <= 6))){
+        return 4;
+    }
+    if(h < 1 || h > 24){
+        return 5;
+    }
+
+    SubListTalk*aux = searchTalkSemester(auxS, id);
+    if(aux != NULL){
+        return 6;
+    }
+
     else{
         SubListTalk*newTalk = new SubListTalk(id, name, y, m, d, h);
         if(auxS->myTalks == NULL){
@@ -879,14 +890,14 @@ int assignTalkToSemester(int id, int yeard, int period, string name, int y, int 
         }
         SubListTalk* auxT = auxS->myTalks;
 
-        if((m < auxT->month) || ((m == auxT->month) && (d <= auxT->day))){
+        if((m < auxT->month) || ((m == auxT->month) && (d < auxT->day)) || ((m == auxT->month) && (d == auxT->day) && (h <= auxT->hour))){
             newTalk->next = auxT;
             auxS->myTalks = newTalk;
             return 0;
         }
         SubListTalk* auxTNext = auxS->myTalks->next;
         while(auxTNext != NULL){
-            if((m < auxTNext->month) || ((m == auxTNext->month) && (d <= auxTNext->day ))){
+            if((m < auxTNext->month) || ((m == auxTNext->month) && (d < auxTNext->day )) || ((m == auxT->month) && (d == auxT->day) && (h <= auxT->hour))){
                 auxT->next = newTalk;
                 newTalk->next = auxTNext;
                 return 0;
@@ -898,7 +909,6 @@ int assignTalkToSemester(int id, int yeard, int period, string name, int y, int 
         return 0;
     }
 }
-
 
 
 void loadData(){  // Method that loads the initial data for the efficient performance of the application
@@ -989,14 +999,11 @@ void loadData(){  // Method that loads the initial data for the efficient perfor
     assignTalkToSemester(1, 2021, 1, "Alimentos Saludables", 2021, 2, 5, 9);
     assignTalkToSemester(2, 2021, 1, "Odontologia", 2021, 3, 5,  10);
 
-
     assignTalkToSemester(1, 2021, 2, "Habitos saludables", 2021, 8, 5, 13);
     assignTalkToSemester(2, 2021, 2, "Psicologia", 2021, 7, 1, 15);
     assignTalkToSemester(3, 2021, 2, "Robots", 2021, 9, 7, 11);
     assignTalkToSemester(4, 2021, 2, "Ejercicios", 2021, 7, 2,  10);
     assignTalkToSemester(5, 2021, 2, "Alimentos Saludables", 2021, 11, 5, 9);
-
-
 
 }
 
@@ -1168,6 +1175,7 @@ void showCoursesSemesters(){
     }
 }
 
+
 void showTalkSemester(){
     cout<<"\n~~~~~~~~ Showing Talks in Semester ~~~~~~~~\n";
 
@@ -1190,71 +1198,6 @@ void showTalkSemester(){
         auxS=auxS->next;
     }
     cout << "\n--------------------------------------------------------------------------------------" << endl;
-}
-
-
-
-void studentsMenu(){  // Work in progress
-    system("CLS");
-    char k = '0';
-
-    cout << endl <<"------------------------------>> Student Menu <<------------------------------" << endl;
-    cout << endl <<"                              Select one section \n";
-    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-    cout << endl <<"1. ---> Teachers \n";
-    cout << endl <<"2. ---> Students \n";
-    cout << endl <<"3. ---> Turn back \n";
-    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-    cout << endl <<"Option: ";
-    cin >> k;
-
-}
-
-
-void teachersMenu(){  // Work in progress
-    system("CLS");
-    char k = '0';
-
-    cout << endl <<"------------------------------>> Teacher Menu <<------------------------------" << endl;
-    cout << endl <<"                              Select one section \n";
-    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-    cout << endl <<"1. ---> Teachers \n";
-    cout << endl <<"2. ---> Students \n";
-    cout << endl <<"3. ---> Turn back \n";
-    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-    cout << endl <<"Option: ";
-    cin >> k;
-
-}
-
-
-void usersMenu(){
-    system("CLS");
-    char k = '0';
-
-    cout << endl <<"------------------------------->> Users Menu <<-------------------------------" << endl;
-    cout << endl <<"                              Select one section \n";
-    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-    cout << endl <<"1. ---> Teachers \n";
-    cout << endl <<"2. ---> Students \n";
-    cout << endl <<"3. ---> Turn back \n";
-    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
-    cout << endl <<"Option: ";
-    cin >> k;
-
-    if(k == '1'){
-        teachersMenu();
-
-    } else if(k == '2'){
-        studentsMenu();
-
-    } else if(k == '3'){
-        mainMenu();
-
-    } else{
-        usersMenu();
-    }
-
 }
 
 
@@ -1526,10 +1469,6 @@ void removeStudent(){
         }
     }
 }
-
-
-
-
 
 
 void managementTS(){
@@ -2219,9 +2158,13 @@ void adminReports(){
     } else if(k == '2'){
         showTalksWithMoreA();
 
-    } else {
+    } else if(k == '3'){
         adminsMenu();
+
+    } else{
+        adminReports();
     }
+
 }
 
 
@@ -2311,6 +2254,212 @@ void login(){
 }
 
 
+void managementAssignments(Teacher* teacher){
+    cout << endl <<"Hola";
+
+}
+
+
+void managementTalks(){
+    cout << endl <<"Hola";
+
+}
+
+
+void teacherReports(){
+    cout << endl <<"Hola";
+
+}
+
+
+void teachersMenu(Teacher* teacher){
+    system("CLS");
+    char k = '0';
+
+    cout << endl <<"------------------------------>> Teacher Menu <<------------------------------" << endl;
+    cout << endl <<"                               Select an option \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"1. ---> Manage assignments \n";
+    cout << endl <<"2. ---> Manage talks \n";
+    cout << endl <<"3. ---> Reports \n";
+    cout << endl <<"4. ---> Turn back \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"Option: ";
+    cin >> k;
+
+    if(k == '1'){
+        managementAssignments(teacher);
+
+    } else if(k == '2'){
+        managementTalks();
+
+    } else if(k == '3'){
+        teacherReports();
+
+    } else if(k == '4'){
+        usersMenu();
+
+    } else{
+        teachersMenu(teacher);
+    }
+
+}
+
+
+void completeAssignment(Student* student){
+    cout << endl <<"Hola";
+
+}
+
+
+void attendTalk(Student* student){
+    cout << endl <<"Hola";
+
+}
+
+
+void showCrashes(Student* student){
+    cout << endl <<"Hola";
+
+}
+
+
+void studentsMenu(Student* student){
+    system("CLS");
+    char k = '0';
+
+    cout << endl <<"------------------------------>> Student Menu <<------------------------------" << endl;
+    cout << endl <<"                               Select an option \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"1. ---> Register completed assignment \n";
+    cout << endl <<"2. ---> Register attended talk \n";
+    cout << endl <<"3. ---> Consult the scheduled assignments by week x, to identify crashes \n";
+    cout << endl <<"4. ---> Turn back \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"Option: ";
+    cin >> k;
+
+    if(k == '1'){
+        completeAssignment(student);
+
+    } else if(k == '2'){
+        attendTalk(student);
+
+    } else if(k == '3'){
+        showCrashes(student);
+
+    } else if(k == '4'){
+        usersMenu();
+
+    } else{
+        studentsMenu(student);
+    }
+
+}
+
+
+void tryIdOrSc(int section){
+    system("CLS");
+    char k = '0';
+
+    cout << endl <<"---------------------------------------------------------------------------------------" << endl;
+    if(section == 1){
+        cout << endl <<"********************************** Teacher not found **********************************" << endl;
+
+    } else{
+        cout << endl <<"********************************** Student not found **********************************" << endl;
+    }
+    cout << endl <<"---------------------------------------------------------------------------------------" << endl;
+
+    cout << endl <<"---> Digit 1: to try again \n";
+    cout << endl <<"---> Digit 2: to turn back to users menu \n";
+    cout << endl <<"Option: ";
+    cin >> k;
+
+    if(k == '1'){
+        usersLogin(section);
+
+    } else if(k == '2'){
+        usersMenu();
+
+    } else{
+        tryIdOrSc(section);
+    }
+}
+
+
+void usersLogin(int section){
+    system("CLS");
+    int id;
+
+    cout << endl <<"-------------------------------------------------------------------------------" << endl;
+    if(section == 1){
+        cout << endl <<" You have selected the teacher section, so we have to verify you are a teacher " << endl;
+
+    } else{
+        cout << endl <<" You have selected the student section, so we have to verify you are a student " << endl;
+    }
+    cout << endl <<"-------------------------------------------------------------------------------" << endl;
+
+    if(section == 1){
+        cout << endl <<"Please enter your identification: ";
+
+    } else{
+        cout << endl <<"Please enter your student card: ";
+    }
+
+    cin >> id;
+
+    if(section == 1){
+        Teacher* teacher = searchTeacher(id);
+        if(teacher == NULL){
+            tryIdOrSc(1);
+        } else{
+            teachersMenu(teacher);
+        }
+
+    } else{
+        Student* student = searchStudent(id);
+        if(student == NULL){
+            tryIdOrSc(2);
+        } else{
+            studentsMenu(student);
+        }
+
+    }
+}
+
+
+void usersMenu(){
+    system("CLS");
+    char k = '0';
+
+    cout << endl <<"------------------------------->> Users Menu <<-------------------------------" << endl;
+    cout << endl <<"                              Select one section \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"1. ---> Teachers \n";
+    cout << endl <<"2. ---> Students \n";
+    cout << endl <<"3. ---> Turn back \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"Option: ";
+    cin >> k;
+
+    if(k == '1'){
+        usersLogin(1);
+
+    } else if(k == '2'){
+        usersLogin(2);
+
+    } else if(k == '3'){
+        mainMenu();
+
+    } else{
+        usersMenu();
+    }
+
+}
+
+
 void mainMenu(){
     system("CLS");
     char k = '0';
@@ -2344,11 +2493,7 @@ void mainMenu(){
 
 int main(){
     loadData();
-    //mainMenu();
-
-
-    showTalkSemester();
-    //mainMenu();
+    mainMenu();
 
 
 /*
