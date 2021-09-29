@@ -102,16 +102,27 @@ struct Course{
 }*firstCourse;  // Simple circular list
 
 
-struct SubListAssignment{  // Work in progress
+struct SubListAssignment{
     int id;
     int percentage;
     string name;
     string kind;
-    //bool status; ?
-    //Date
+    int day, month, year, hour;
     SubListAssignment* next;  // Link to the next node (Assignment) in the Sub-list
 
-    //Constructor
+    SubListAssignment(int i, int p, string n, string k, int d, int m, int y, int h){
+        id = i;
+        percentage = p;
+        name = n;
+        kind = k;
+        day = d;
+        month = m;
+        year = y;
+        hour = h;
+        next = NULL;
+
+    }
+
 
 };  // There is no "first" as such, since it is a Sub-list
 
@@ -908,6 +919,34 @@ int assignTalkToSemester(int id, int yeard, int period, string name, int y, int 
         auxT->next = newTalk;
         return 0;
     }
+}
+
+bool modifyTalk(int id, string newName, int year, int period){  // Method that modifies the name of a registered talks
+
+/*
+    Course*aux = searchCourse(code);  // The course is searched using the "searchCourse" method
+
+    if(aux != NULL){
+        aux->name = newName;   // If the course is registered, then his information is modified
+        return true;
+    }
+
+    return false;  // If the course is not registered, then "false" is returned
+    */
+}
+
+int deleteTalk(int id, string newName, int year, int period){  // Method that modifies the name of a registered talks
+
+/*
+    Course*aux = searchCourse(code);  // The course is searched using the "searchCourse" method
+
+    if(aux != NULL){
+        aux->name = newName;   // If the course is registered, then his information is modified
+        return true;
+    }
+
+    return false;  // If the course is not registered, then "false" is returned
+    */
 }
 
 
