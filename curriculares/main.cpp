@@ -104,15 +104,14 @@ struct Course{
 
 struct SubListAssignment{
     int id;
-    int percentage;
+    int grade;
     string name;
     string kind;
     int day, month, year, hour;
     SubListAssignment* next;  // Link to the next node (Assignment) in the Sub-list
 
-    SubListAssignment(int i, int p, string n, string k, int d, int m, int y, int h){
+    SubListAssignment(int i, string n, string k, int d, int m, int y, int h){
         id = i;
-        percentage = p;
         name = n;
         kind = k;
         day = d;
@@ -857,6 +856,30 @@ int assignCourseToSemester(int yeard, int period, string code){
 }
 
 
+SubListAssignment* searchAssignment(SubListGroup* group, int id, string kind){
+    return NULL;
+
+}
+
+
+int assignAssignment(Teacher* teacher, string courseCode, int idG, int idA, string kind, string name, int day, int month, int year, int hour){
+    return 2;
+
+}
+
+
+int modifyAssignment(Teacher* teacher, string courseCode, int idG, int idA, string kind, string newName){
+    return 2;
+
+}
+
+
+int deleteAssignment(Teacher* teacher, string courseCode, int idG, int idA, string kind){
+    return 3;
+
+}
+
+
 SubListTalk* searchTalkSemester(Semester* auxS, int id){
     SubListTalk*auxT = auxS->myTalks;
     while(auxT != NULL){
@@ -869,13 +892,13 @@ SubListTalk* searchTalkSemester(Semester* auxS, int id){
 }
 
 
-int assignTalkToSemester(int id, int yeard, int period, string name, int y, int m, int d, int h){
-    Semester*auxS = searchSemester(yeard, period);
+int assignTalkToSemester(int id, int year, int period, string name, int y, int m, int d, int h){
+    Semester*auxS = searchSemester(year, period);
 
     if(auxS == NULL){
         return 1;
     }
-    if(yeard != y){
+    if(year != y){
         return 2;
     }
     if((m>12) || (d>31)){
@@ -921,6 +944,7 @@ int assignTalkToSemester(int id, int yeard, int period, string name, int y, int 
     }
 }
 
+
 bool modifyTalk(int id, string newName, int year, int period){  // Method that modifies the name of a registered talks
 
 /*
@@ -933,9 +957,11 @@ bool modifyTalk(int id, string newName, int year, int period){  // Method that m
 
     return false;  // If the course is not registered, then "false" is returned
     */
+    return false;
 }
 
-int deleteTalk(int id, string newName, int year, int period){  // Method that modifies the name of a registered talks
+
+int deleteTalk(int id, int year, int period){  // Method that modifies the name of a registered talks
 
 /*
     Course*aux = searchCourse(code);  // The course is searched using the "searchCourse" method
@@ -947,6 +973,32 @@ int deleteTalk(int id, string newName, int year, int period){  // Method that mo
 
     return false;  // If the course is not registered, then "false" is returned
     */
+    return 1;
+}
+
+
+int registerCoAssignment(Student* student, string courseCode, int idG, int idA, string kind){
+    return 1;
+
+}
+
+
+SubListTalk* searchTalkStudent(Student* student, int id){
+    SubListTalk*auxT = student->myTalks;
+
+    while(auxT != NULL){
+        if(id == auxT->id){
+            return auxT;
+        }
+        auxT = auxT->next;
+    }
+    return NULL;
+}
+
+
+int registerAtteTalk(Student* student, int id, int year, int period){
+    return 3;
+
 }
 
 
@@ -2293,13 +2345,85 @@ void login(){
 }
 
 
+void registerAssignment(){
+    cout << endl <<"Hola";
+
+}
+
+
+void modifyingAssignment(){
+    cout << endl <<"Hola";
+
+}
+
+
+void removeAssignment(){
+    cout << endl <<"Hola";
+
+}
+
+
 void managementAssignments(Teacher* teacher){
     cout << endl <<"Hola";
 
 }
 
 
+void registerTalk(){
+    cout << endl <<"Hola";
+
+}
+
+
+void modifyingTalk(){
+    cout << endl <<"Hola";
+
+}
+
+
+void removeTalk(){
+    cout << endl <<"Hola";
+
+}
+
+
 void managementTalks(){
+    cout << endl <<"Hola";
+
+}
+
+
+void teacherReport1(){
+    cout << endl <<"Hola";
+
+}
+
+
+void teacherReport2(){
+    cout << endl <<"Hola";
+
+}
+
+
+void teacherReport3(){
+    cout << endl <<"Hola";
+
+}
+
+
+void teacherReport4(){
+    cout << endl <<"Hola";
+
+}
+
+
+void teacherReport5(){
+    cout << endl <<"Hola";
+
+}
+
+
+void teacherReport6(){
     cout << endl <<"Hola";
 
 }
