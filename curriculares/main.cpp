@@ -885,63 +885,219 @@ SubListAssignment* searchAssignment(SubListGroup* group, int id, string kind){
 
 int assignAssignment(Teacher* teacher, string courseCode, int idG, int idA, string kind, string name, int day, int month, int year, int hour){
 
-    if(teacher == NULL){
+    if((kind != "task") && (kind != "Task") && (kind != "project") && (kind != "Project") && (kind != "test") && (kind != "Test") && (kind != "tour") && (kind != "Tour")){
         return 1;
     }
 
-    Course*auxC = searchCourse(courseCode);
-
-    SubListGroup*auxG = searchGroupInTeacher(idG, auxC, teacher);
-    if(auxG == NULL){
+    Course* course = searchCourse(courseCode); //Curso no existe
+    if(course == NULL){
         return 2;
     }
+
+    SubListGroup* group = searchGroupInCourse(idG, course); //Grupo no existe en dicho curso
+    if(group == NULL){
+        return 3;
+    }
+
+    SubListGroup* groupTeacher = searchGroupInTeacher(idG, course, teacher); //Teacher no pertenece al grupo
+    if(groupTeacher == NULL){
+        return 4;
+    }
+
+    SubListAssignment* activity = searchAssignment(groupTeacher, idA, kind); //La actividad no existe
+    if(activity == NULL){
+        return 5;
+    }
+
     //si lo tiene asignado
-    Asignaciones *nn = new Asignaciones(id,nom,p,d,m,year);
+    SubListAssignment*newAs = new SubListAssignment(idA, name, kind, day, month, year, hour);
+    SubListAssignment*auxAS;
     //ocupo saber en cual de las cuatros  sublista es
-    if(tipo == "Proyecto" ){
-            nn->sig = auxG->enlace->subListaProyectos;
-            auxG->enlace->subListaProyectos = nn;
+
+    if((kind == "task") || (kind == "Task")){
+        auxAS = groupTeacher->tasks;
     }
-    else if(tipo == "Tarea" ){
-        nn->sig = auxG->enlace->subListaTareas;
-        auxG->enlace->subListaTareas = nn;
+    else if((kind == "project") || (kind == "Project")){
+        auxAS = groupTeacher->projects;
     }
-    else if(tipo == "Giras" ){
-        nn->sig = auxG->enlace->subListaGiras;
-        auxG->enlace->subListaGiras = nn;
-    }
-    else if(tipo == "Examen" ){
-        nn->sig = auxG->enlace->subListaExamen;
-        auxG->enlace->subListaExamen = nn;
+    else if((kind == "test") || (kind == "Test")){
+        auxAS = groupTeacher->tests;
     }
     else{
-                        cout<<"El tipo de asignacion no existe";
-                        return;
-
-                    }
-                    cout<<"Se inserto la asignacion correctamente";
-                    break;//se sale cuando lo inserta
-                }
-
-        auxG = auxG->sig;
+        auxAS = groupTeacher->tours;
     }
-    if(auxG == NULL){
 
-        cout<<"No tiene el curso asignado";
-        return;
+
+
+    if(auxAS == NULL){
+        if((kind == "task") || (kind == "Task")){
+            groupTeacher->tasks = newAs;
+            group->tasks = groupTeacher->tasks;
+        }
+        else if((kind == "project") || (kind == "Project")){
+            groupTeacher->projects = newAs;
+            group->projects = groupTeacher->projects;
+        }
+        else if((kind == "test") || (kind == "Test")){
+            groupTeacher->tests = newAs;
+            group->tests = groupTeacher->tests;
+        }
+        else{
+            groupTeacher->tours = newAs;
+            group->tours = groupTeacher->tours;
+        }
+        return 0;
     }
+
+    if((month < auxAS->month) || ((month == auxAS->month) && (day < auxAS->day)) || ((month == auxAS->month) && (day == auxAS->day) && (hour <= auxAS->hour))){
+        newAs->next = auxAS;
+        if((kind == "task") || (kind == "Task")){
+            groupTeacher->tasks = newAs;
+            group->tasks = groupTeacher->tasks;
+        }
+        else if((kind == "project") || (kind == "Project")){
+            groupTeacher->projects = newAs;
+            group->projects = groupTeacher->projects;
+        }
+        else if((kind == "test") || (kind == "Test")){
+            groupTeacher->tests = newAs;
+            group->tests = groupTeacher->tests;
+        }
+        else{
+            groupTeacher->tours = newAs;
+            group->tours = groupTeacher->tours;
+        }
+        return 0;
+    }
+
+
+    SubListAssignment* auxAsnext = auxAS->next;
+    while(auxAsnext != NULL){
+        if((month < auxAsnext->month) || ((month == auxAsnext->month) && (day < auxAsnext->day )) || ((month == auxAsnext->month) && (day == auxAsnext->day) && (hour <= auxAsnext->hour))){
+            auxAS->next = newAs;
+            newAs->next = auxAsnext;
+
+            group->tasks = groupTeacher->tasks;
+            group->projects = groupTeacher->projects;
+            group->tests = groupTeacher->tests;
+            group->tours = groupTeacher->tours;
+
+            return 0;
+        }
+        auxAS = auxAsnext;
+        auxAsnext = auxAsnext->next;
+    }
+
+    auxAS->next = newAs;
+
+    group->tasks = groupTeacher->tasks;
+    group->projects = groupTeacher->projects;
+    group->tests = groupTeacher->tests;
+    group->tours = groupTeacher->tours;
+
+    return 0;
 }
+
 
 
 
 int modifyAssignment(Teacher* teacher, string courseCode, int idG, int idA, string kind, string newName){
-    return 2;
 
+    if((kind != "task") && (kind != "Task") && (kind != "project") && (kind != "Project") && (kind != "test") && (kind != "Test") && (kind != "tour") && (kind != "Tour")){
+        return 1;
+    }
+
+    Course* course = searchCourse(courseCode); //Curso no existe
+    if(course == NULL){
+        return 2;
+    }
+
+    SubListGroup* group = searchGroupInCourse(idG, course); //Grupo no existe en dicho curso
+    if(group == NULL){
+        return 3;
+    }
+
+    SubListGroup* groupTeacher = searchGroupInTeacher(idG, course, teacher); //Teacher no pertenece al grupo
+    if(groupTeacher == NULL){
+        return 4;
+    }
+
+    SubListAssignment*auxA = searchAssignment(groupTeacher, idA, kind);  // The course is searched using the "searchCourse" method
+
+    if(auxA != NULL){
+        auxA->name = newName;   // If the course is registered, then his information is modified
+        return 0;
+    }
+    return 5;
 }
 
 
 int deleteAssignment(Teacher* teacher, string courseCode, int idG, int idA, string kind){
-    return 3;
+
+    if((kind != "task") && (kind != "Task") && (kind != "project") && (kind != "Project") && (kind != "test") && (kind != "Test") && (kind != "tour") && (kind != "Tour")){
+        return 1;
+    }
+
+    Course* course = searchCourse(courseCode); //Curso no existe
+    if(course == NULL){
+        return 2;
+    }
+
+    SubListGroup* group = searchGroupInCourse(idG, course); //Grupo no existe en dicho curso
+    if(group == NULL){
+        return 3;
+    }
+
+    SubListGroup* groupTeacher = searchGroupInTeacher(idG, course, teacher); //Teacher no pertenece al grupo
+    if(groupTeacher == NULL){
+        return 4;
+    }
+
+    SubListAssignment* activity = searchAssignment(groupTeacher, idA, kind); //La actividad no existe
+    if(activity == NULL){
+        return 5;
+    }
+
+
+    if(activity == groupTeacher->tasks){       // En caso de que sea el primer elemento
+        groupTeacher->tasks = groupTeacher->tasks->next;
+        return 0;
+    }
+    if(activity == groupTeacher->tests){       // En caso de que sea el primer elemento
+        groupTeacher->tests = groupTeacher->tests->next;
+        return 0;
+    }
+    if(activity == groupTeacher->tours){       // En caso de que sea el primer elemento
+        groupTeacher->tours = groupTeacher->tours->next;
+        return 0;
+    }
+    if(activity == groupTeacher->projects){       // En caso de que sea el primer elemento
+        groupTeacher->projects = groupTeacher->projects->next;
+        return 0;
+    }
+
+    SubListAssignment*auxAS;
+    //ocupo saber en cual de las cuatros  sublista es
+
+    if((kind == "task") || (kind == "Task")){
+        auxAS = groupTeacher->tasks;
+    }
+    else if((kind == "project") || (kind == "Project")){
+        auxAS = groupTeacher->projects;
+    }
+    else if((kind == "test") || (kind == "Test")){
+        auxAS = groupTeacher->tests;
+    }
+    else{
+        auxAS = groupTeacher->tours;
+    }
+
+    while(auxAS->next != activity){
+        auxAS = auxAS->next;
+    }
+
+    auxAS->next = activity->next;
+    return 0;
 
 }
 
@@ -1145,7 +1301,7 @@ int registerAtteTalk(Student* student, int id, int year, int period){
 
     if(searchTalkStudent(student, id, talk->year, talk->month) == NULL){  //El estudiante no ha registrado la asistencia a la charla
         SubListTalk* newT = new SubListTalk(id, talk->name, talk->year, talk->month, talk->day, talk->hour);
-        newT->next == student->myTalks;
+        newT->next = student->myTalks;
         student->myTalks = newT;
         return 0;
     }
