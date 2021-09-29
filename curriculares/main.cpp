@@ -857,8 +857,29 @@ int assignCourseToSemester(int yeard, int period, string code){
 
 
 SubListAssignment* searchAssignment(SubListGroup* group, int id, string kind){
-    return NULL;
+    SubListAssignment* auxA;
 
+    if((kind == "task") || (kind == "Task")){
+        auxA = group->tasks;
+
+    } else if((kind == "project") || (kind == "Project")){
+        auxA = group->projects;
+
+    } else if((kind == "test") || (kind == "Test")){
+        auxA = group->tests;
+
+    } else{
+        auxA = group->tours;
+    }
+
+    while(auxA != NULL){
+        if(auxA->id == id){
+            return auxA;
+        }
+        auxA = auxA->next;
+    }
+
+    return NULL;
 }
 
 
@@ -1039,17 +1060,67 @@ int deleteTalk(int id, int year, int period){  // Method that modifies the name 
 }
 
 
-int registerCoAssignment(Student* student, string courseCode, int idG, int idA, string kind){
-    return 1;
+SubListAssignment* searchAssignmentStudent(Student* student, int id, string kind){
+    SubListAssignment* auxA = student->myAssignments;
 
+    while(auxA != NULL){
+        if((id == auxA->id) && (kind == auxA->kind)){
+            return auxA;
+        }
+        auxA = auxA->next;
+    }
+
+    return NULL;
 }
 
 
-SubListTalk* searchTalkStudent(Student* student, int id){
-    SubListTalk*auxT = student->myTalks;
+int registerCoAssignment(Student* student, string courseCode, int idG, int idA, string kind){
+    if((kind != "task") && (kind != "Task") && (kind != "project") && (kind != "Project") && (kind != "test") && (kind != "Test") && (kind != "tour") && (kind != "Tour")){
+        return 1;
+    }
+
+    Course* course = searchCourse(courseCode); //Curso no existe
+    if(course == NULL){
+        return 2;
+    }
+
+    SubListGroup* group = searchGroupInCourse(idG, course); //Grupo no existe en dicho curso
+    if(group == NULL){
+        return 3;
+    }
+
+    SubListGroup* groupStudent = searchGroupInStudent(idG, course, student); //Estudiante no pertenece al grupo
+    if(groupStudent == NULL){
+        return 4;
+    }
+
+    SubListAssignment* activity = searchAssignment(group, idA, kind); //La actividad no existe
+    if(activity == NULL){
+        return 5;
+    }
+
+    if(student->myAssignments == NULL){   // EL estudiante no ha registrado ninguna actividad
+        SubListAssignment* newA = new SubListAssignment(idA, activity->name, kind, activity->day, activity->month, activity->year, activity->hour);
+        student->myAssignments = newA;
+        return 0;
+    }
+
+    if(searchAssignmentStudent(student, idA, kind) == NULL){ //El estudiante no ha registrado dicha actividad como completada
+        SubListAssignment* newA = new SubListAssignment(idA, activity->name, kind, activity->day, activity->month, activity->year, activity->hour);
+        newA->next = student->myAssignments;
+        student->myAssignments = newA;
+        return 0;
+    }
+
+    return 6; // El estudiante ya registro la actividad como completada
+}
+
+
+SubListTalk* searchTalkStudent(Student* student, int id, int year, int month){
+    SubListTalk* auxT = student->myTalks;
 
     while(auxT != NULL){
-        if(id == auxT->id){
+        if((id == auxT->id) && (year == auxT->year) && (month == auxT->month)){
             return auxT;
         }
         auxT = auxT->next;
@@ -1059,8 +1130,27 @@ SubListTalk* searchTalkStudent(Student* student, int id){
 
 
 int registerAtteTalk(Student* student, int id, int year, int period){
-    return 3;
+    Semester* semester = searchSemester(year, period);  //Semestre no se verifica porque el periodo y año son controlados
 
+    SubListTalk* talk = searchTalkSemester(semester, id); // La charla no existe en el semestre
+    if(talk == NULL){
+        return 1;
+    }
+
+    if(student->myTalks == NULL){  // El estudiante no ha asistido a ninguna charla
+        SubListTalk* newT = new SubListTalk(id, talk->name, talk->year, talk->month, talk->day, talk->hour);
+        student->myTalks = newT;
+        return 0;
+    }
+
+    if(searchTalkStudent(student, id, talk->year, talk->month) == NULL){  //El estudiante no ha registrado la asistencia a la charla
+        SubListTalk* newT = new SubListTalk(id, talk->name, talk->year, talk->month, talk->day, talk->hour);
+        newT->next == student->myTalks;
+        student->myTalks = newT;
+        return 0;
+    }
+
+    return 2; // El estudiante ya registro la asistencia en la charla
 }
 
 
@@ -1157,6 +1247,7 @@ void loadData(){  // Method that loads the initial data for the efficient perfor
     assignTalkToSemester(3, 2021, 2, "Robots", 2021, 9, 7, 11);
     assignTalkToSemester(4, 2021, 2, "Ejercicios", 2021, 7, 2,  10);
     assignTalkToSemester(5, 2021, 2, "Alimentos Saludables", 2021, 11, 5, 9);
+
 
 }
 
@@ -2719,7 +2810,6 @@ void mainMenu(){
 int main(){
     loadData();
     mainMenu();
-
 
 /*
     showAdmins();
