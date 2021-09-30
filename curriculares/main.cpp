@@ -1,4 +1,6 @@
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
 
@@ -177,7 +179,7 @@ struct SubListTalk{
 
 struct SubListCourse{
     SubListCourse* next;  // Link to the next node (Course) in the Sub-list
-    Course* enC;       // Link to the corresponding course
+    Course* enC;          // Link to the corresponding course
 
     SubListCourse(Course* c){
         next = NULL;
@@ -201,7 +203,7 @@ void usersLogin(int section);
 void teachersMenu(Teacher* teacher);
 void studentsMenu(Student* student);
 void managementAssignments(Teacher* teacher);
-void managementTalks();
+void managementTalks(Teacher* teacher);
 //----------------------------------------------------------------------------------------------------------------------------
 
 
@@ -883,33 +885,84 @@ SubListAssignment* searchAssignment(SubListGroup* group, int id, string kind){
 }
 
 
+void setAssignmentInKind(SubListAssignment* newAs, string kind, SubListGroup* groupTeacher, SubListGroup* group){
+    if((kind == "task") || (kind == "Task")){
+        groupTeacher->tasks = newAs;
+        group->tasks = groupTeacher->tasks;
+    }
+    else if((kind == "project") || (kind == "Project")){
+        groupTeacher->projects = newAs;
+        group->projects = groupTeacher->projects;
+    }
+    else if((kind == "test") || (kind == "Test")){
+        groupTeacher->tests = newAs;
+        group->tests = groupTeacher->tests;
+    } else{
+        groupTeacher->tours = newAs;
+        group->tours = groupTeacher->tours;
+    }
+}
+
+
+void updateGroupAssignments(string kind, SubListGroup* groupTeacher, SubListGroup* group){
+    if((kind == "task") || (kind == "Task")){
+        group->tasks = groupTeacher->tasks;
+    }
+    else if((kind == "project") || (kind == "Project")){
+        group->projects = groupTeacher->projects;
+    }
+    else if((kind == "test") || (kind == "Test")){
+        group->tests = groupTeacher->tests;
+    } else{
+        group->tours = groupTeacher->tours;
+    }
+}
+
+
 int assignAssignment(Teacher* teacher, string courseCode, int idG, int idA, string kind, string name, int day, int month, int year, int hour){
 
     if((kind != "task") && (kind != "Task") && (kind != "project") && (kind != "Project") && (kind != "test") && (kind != "Test") && (kind != "tour") && (kind != "Tour")){
         return 1;
     }
 
+    if((month > 12) || (month < 1 ) || (day > 31) || (day < 1)){
+        return 2;
+    }
+
+    if(hour < 1 || hour > 24){
+        return 3;
+    }
+
     Course* course = searchCourse(courseCode); //Curso no existe
     if(course == NULL){
-        return 2;
+        return 4;
+    }
+
+    Semester* semester;
+    if(month < 7){
+        semester = searchSemester(year, 1);
+    } else{
+        semester = searchSemester(year, 2);
+    }
+    if(searchCourseInSemester(course, semester) == NULL){  //El curso no se imparte en el semestre actual
+        return 5;
     }
 
     SubListGroup* group = searchGroupInCourse(idG, course); //Grupo no existe en dicho curso
     if(group == NULL){
-        return 3;
+        return 6;
     }
 
     SubListGroup* groupTeacher = searchGroupInTeacher(idG, course, teacher); //Teacher no pertenece al grupo
     if(groupTeacher == NULL){
-        return 4;
+        return 7;
     }
 
-    SubListAssignment* activity = searchAssignment(groupTeacher, idA, kind); //La actividad no existe
-    if(activity == NULL){
-        return 5;
+    SubListAssignment* activity = searchAssignment(groupTeacher, idA, kind); // La actividad ya esta registrada
+    if(activity != NULL){
+        return 8;
     }
 
-    //si lo tiene asignado
     SubListAssignment*newAs = new SubListAssignment(idA, name, kind, day, month, year, hour);
     SubListAssignment*auxAS;
     //ocupo saber en cual de las cuatros  sublista es
@@ -927,61 +980,23 @@ int assignAssignment(Teacher* teacher, string courseCode, int idG, int idA, stri
         auxAS = groupTeacher->tours;
     }
 
-
-
     if(auxAS == NULL){
-        if((kind == "task") || (kind == "Task")){
-            groupTeacher->tasks = newAs;
-            group->tasks = groupTeacher->tasks;
-        }
-        else if((kind == "project") || (kind == "Project")){
-            groupTeacher->projects = newAs;
-            group->projects = groupTeacher->projects;
-        }
-        else if((kind == "test") || (kind == "Test")){
-            groupTeacher->tests = newAs;
-            group->tests = groupTeacher->tests;
-        }
-        else{
-            groupTeacher->tours = newAs;
-            group->tours = groupTeacher->tours;
-        }
+        setAssignmentInKind(newAs, kind, groupTeacher, group);
         return 0;
     }
 
     if((month < auxAS->month) || ((month == auxAS->month) && (day < auxAS->day)) || ((month == auxAS->month) && (day == auxAS->day) && (hour <= auxAS->hour))){
         newAs->next = auxAS;
-        if((kind == "task") || (kind == "Task")){
-            groupTeacher->tasks = newAs;
-            group->tasks = groupTeacher->tasks;
-        }
-        else if((kind == "project") || (kind == "Project")){
-            groupTeacher->projects = newAs;
-            group->projects = groupTeacher->projects;
-        }
-        else if((kind == "test") || (kind == "Test")){
-            groupTeacher->tests = newAs;
-            group->tests = groupTeacher->tests;
-        }
-        else{
-            groupTeacher->tours = newAs;
-            group->tours = groupTeacher->tours;
-        }
+        setAssignmentInKind(newAs, kind, groupTeacher, group);
         return 0;
     }
-
 
     SubListAssignment* auxAsnext = auxAS->next;
     while(auxAsnext != NULL){
         if((month < auxAsnext->month) || ((month == auxAsnext->month) && (day < auxAsnext->day )) || ((month == auxAsnext->month) && (day == auxAsnext->day) && (hour <= auxAsnext->hour))){
             auxAS->next = newAs;
             newAs->next = auxAsnext;
-
-            group->tasks = groupTeacher->tasks;
-            group->projects = groupTeacher->projects;
-            group->tests = groupTeacher->tests;
-            group->tours = groupTeacher->tours;
-
+            updateGroupAssignments(kind, groupTeacher, group); // Las tareas del grupo de curso quedan igual a las del profe
             return 0;
         }
         auxAS = auxAsnext;
@@ -989,16 +1004,9 @@ int assignAssignment(Teacher* teacher, string courseCode, int idG, int idA, stri
     }
 
     auxAS->next = newAs;
-
-    group->tasks = groupTeacher->tasks;
-    group->projects = groupTeacher->projects;
-    group->tests = groupTeacher->tests;
-    group->tours = groupTeacher->tours;
-
+    updateGroupAssignments(kind, groupTeacher, group); // Las tareas del grupo de curso quedan igual a las del profe
     return 0;
 }
-
-
 
 
 int modifyAssignment(Teacher* teacher, string courseCode, int idG, int idA, string kind, string newName){
@@ -1114,32 +1122,29 @@ SubListTalk* searchTalkSemester(Semester* auxS, int id){
 }
 
 
-int assignTalkToSemester(int id, int year, int period, string name, int y, int m, int d, int h){
+int assignTalkToSemester(int id, int year, int period, string name, int m, int d, int h){
     Semester*auxS = searchSemester(year, period);
 
     if(auxS == NULL){
         return 1;
     }
-    if(year != y){
+    if((m > 12) || (m < 1 ) || (d > 31) || (d < 1)){
         return 2;
     }
-    if((m>12) || (d>31)){
+    if(((period==1) && (m > 6)) || ((period==2) && (m <= 6))){
         return 3;
     }
-    if(((period==1) && (m > 6)) || ((period==2) && (m <= 6))){
-        return 4;
-    }
     if(h < 1 || h > 24){
-        return 5;
+        return 4;
     }
 
     SubListTalk*aux = searchTalkSemester(auxS, id);
     if(aux != NULL){
-        return 6;
+        return 5;
     }
 
     else{
-        SubListTalk*newTalk = new SubListTalk(id, name, y, m, d, h);
+        SubListTalk*newTalk = new SubListTalk(id, name, year, m, d, h);
         if(auxS->myTalks == NULL){
             auxS->myTalks = newTalk;
             return 0;
@@ -1210,9 +1215,6 @@ int deleteTalk(int id, int year, int period){  // Method that modifies the name 
 
     preTalk->next = talkDelete->next;
     return 0;
-
-
-
 }
 
 
@@ -1230,7 +1232,7 @@ SubListAssignment* searchAssignmentStudent(Student* student, int id, string kind
 }
 
 
-int registerCoAssignment(Student* student, string courseCode, int idG, int idA, string kind){
+int registerCoAssignment(Student* student, string courseCode, int idG, int idA, string kind, int year, int month, int day, int hour){
     if((kind != "task") && (kind != "Task") && (kind != "project") && (kind != "Project") && (kind != "test") && (kind != "Test") && (kind != "tour") && (kind != "Tour")){
         return 1;
     }
@@ -1240,35 +1242,51 @@ int registerCoAssignment(Student* student, string courseCode, int idG, int idA, 
         return 2;
     }
 
+    Semester* semester;
+    if(month < 7){
+        semester = searchSemester(year, 1);
+    } else{
+        semester = searchSemester(year, 2);
+    }
+    if(searchCourseInSemester(course, semester) == NULL){  //El curso no se imparte en el semestre actual
+        return 3;
+    }
+
     SubListGroup* group = searchGroupInCourse(idG, course); //Grupo no existe en dicho curso
     if(group == NULL){
-        return 3;
+        return 4;
     }
 
     SubListGroup* groupStudent = searchGroupInStudent(idG, course, student); //Estudiante no pertenece al grupo
     if(groupStudent == NULL){
-        return 4;
+        return 5;
     }
 
     SubListAssignment* activity = searchAssignment(group, idA, kind); //La actividad no existe
     if(activity == NULL){
-        return 5;
+        return 6;
     }
 
     if(student->myAssignments == NULL){   // EL estudiante no ha registrado ninguna actividad
-        SubListAssignment* newA = new SubListAssignment(idA, activity->name, kind, activity->day, activity->month, activity->year, activity->hour);
+        SubListAssignment* newA = new SubListAssignment(idA, activity->name, kind, day, month, year, hour);
+        srand((unsigned)time(0));
+        int grade = (rand()%90)+10;
+        newA->grade = grade;
         student->myAssignments = newA;
         return 0;
     }
 
     if(searchAssignmentStudent(student, idA, kind) == NULL){ //El estudiante no ha registrado dicha actividad como completada
-        SubListAssignment* newA = new SubListAssignment(idA, activity->name, kind, activity->day, activity->month, activity->year, activity->hour);
+        SubListAssignment* newA = new SubListAssignment(idA, activity->name, kind, day, month, year, hour);
+        srand((unsigned)time(0));
+        int grade = (rand()%90)+10;
+        newA->grade = grade;
         newA->next = student->myAssignments;
         student->myAssignments = newA;
         return 0;
     }
 
-    return 6; // El estudiante ya registro la actividad como completada
+    return 7; // El estudiante ya registro la actividad como completada
 }
 
 
@@ -1286,11 +1304,14 @@ SubListTalk* searchTalkStudent(Student* student, int id, int year, int month){
 
 
 int registerAtteTalk(Student* student, int id, int year, int period){
-    Semester* semester = searchSemester(year, period);  //Semestre no se verifica porque el periodo y año son controlados
+    Semester* semester = searchSemester(year, period);  //Semestre no esta registrado
+    if(semester == NULL){
+        return 1;
+    }
 
     SubListTalk* talk = searchTalkSemester(semester, id); // La charla no existe en el semestre
     if(talk == NULL){
-        return 1;
+        return 2;
     }
 
     if(student->myTalks == NULL){  // El estudiante no ha asistido a ninguna charla
@@ -1306,7 +1327,7 @@ int registerAtteTalk(Student* student, int id, int year, int period){
         return 0;
     }
 
-    return 2; // El estudiante ya registro la asistencia en la charla
+    return 3; // El estudiante ya registro la asistencia en la charla
 }
 
 
@@ -1395,14 +1416,14 @@ void loadData(){  // Method that loads the initial data for the efficient perfor
     assignCourseToSemester(2023, 2, "IC2001");  // Data structures --> second period --> 2023
     assignCourseToSemester(2023, 2, "IC2101");  // Object-oriented programming --> second period --> 2023
 
-    assignTalkToSemester(1, 2021, 1, "Alimentos Saludables", 2021, 2, 5, 9);
-    assignTalkToSemester(2, 2021, 1, "Odontologia", 2021, 3, 5,  10);
+    assignTalkToSemester(1, 2021, 1, "Alimentos Saludables", 2, 5, 9);
+    assignTalkToSemester(2, 2021, 1, "Odontologia", 3, 5,  10);
 
-    assignTalkToSemester(1, 2021, 2, "Habitos saludables", 2021, 8, 5, 13);
-    assignTalkToSemester(2, 2021, 2, "Psicologia", 2021, 7, 1, 15);
-    assignTalkToSemester(3, 2021, 2, "Robots", 2021, 9, 7, 11);
-    assignTalkToSemester(4, 2021, 2, "Ejercicios", 2021, 7, 2,  10);
-    assignTalkToSemester(5, 2021, 2, "Alimentos Saludables", 2021, 11, 5, 9);
+    assignTalkToSemester(1, 2021, 2, "Habitos saludables", 8, 5, 13);
+    assignTalkToSemester(2, 2021, 2, "Psicologia", 7, 1, 15);
+    assignTalkToSemester(3, 2021, 2, "Robots", 9, 7, 11);
+    assignTalkToSemester(4, 2021, 2, "Ejercicios", 7, 2,  10);
+    assignTalkToSemester(5, 2021, 2, "Alimentos Saludables", 11, 5, 9);
 
 
 }
@@ -2654,51 +2675,409 @@ void login(){
 }
 
 
-void registerAssignment(){
-    cout << endl <<"Hola";
+void registerAssignment(Teacher* teacher){  //
+    system("CLS");
+    cout << endl <<"-------------------->> Registering a new assignment in a group <<--------------------" << endl;
+    string code;
+    int idG, idA;
+    string kind;
+    string name;
+    int month, day, hour;
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+    int year = ltm->tm_year + 1900;
+    char k = '0';
 
+    cout << endl <<"---> Enter the course's code: ";
+    cin >> code;
+    cout << endl <<"---> Enter the group's ID: ";
+    cin >> idG;
+    cout << endl <<"---> Enter the ID of the new assignment: ";
+    cin >> idA;
+    cout << endl <<"---> Enter the type (task, project, test or tour) of assignment: ";
+    cin >> kind;
+    cout << endl <<"---> Enter the name of the new assignment: ";
+    cin >> name;
+    cout << endl <<"<<----------- Now, enter the delivery date ------------>> ";
+    cout << endl <<"<< The current year will be taken as the delivery year >> \n";
+    cout << endl <<"---> Month (1 to 12): ";
+    cin >> month;
+    cout << endl <<"---> Day (1 to 31): ";
+    cin >> day;
+    cout << endl <<"---> Enter the delivery time (24 hour format) of the assignment: ";
+    cin >> hour;
+
+    int result = assignAssignment(teacher, code, idG, idA, kind, name, day, month, year, hour);
+
+    if(result == 0){
+        cout << endl <<"\n~ The assignment has been registered successfully! \n";
+        cout << endl <<"~ Press any key to continue: ";
+        cin >> k;
+        managementAssignments(teacher);
+
+    } else{
+        cout << endl <<"\n--------------------------------------------------------------------------------------------------" << endl;
+
+        if(result == 1){
+            cout << endl <<"**************************** ERROR: The assignment type is not valid *****************************\n";
+        } else if(result == 2){
+            cout << endl <<"*********************** ERROR: The day or month was out of the valid range ***********************\n";
+        } else if(result == 3){
+            cout << endl <<"************************* ERROR: The time is not in the requested format *************************\n";
+        } else if(result == 4){
+            cout << endl <<"******        It was not possible to register, because that course is not registered        ******\n";
+        } else if(result == 5){
+            cout << endl <<"*** It was not possible to register, because that course is not taught in the current semester ***\n";
+        } else if(result == 6){
+            cout << endl <<"******  It was not possible to register, because the course has not registered that group   ******\n";
+        } else if(result == 7){
+            cout << endl <<"******     It was not possible to register, because you are not in charge of that group     ******\n";
+        } else{
+            cout << endl <<"******    It was not possible to register, because the assignment is already registered     ******\n";
+        }
+
+        cout << endl <<"--------------------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"---> Digit 1: to try again \n";
+        cout << endl <<"---> Press a different key to turn back \n";
+        cout << endl <<"Option: ";
+        cin >> k;
+
+        if(k == '1'){
+            registerAssignment(teacher);
+
+        } else{
+            managementAssignments(teacher);
+        }
+    }
 }
 
 
-void modifyingAssignment(){
-    cout << endl <<"Hola";
+void modifyingAssignment(Teacher* teacher){
+    system("CLS");
+    cout << endl <<"---------------------------->> Modifying an assignment <<----------------------------" << endl;
+    string code;
+    int idG, idA;
+    string kind;
+    string newName;
+    char k = '0';
 
+    cout << endl <<"---> Enter the course's code: ";
+    cin >> code;
+    cout << endl <<"---> Enter the group's ID: ";
+    cin >> idG;
+    cout << endl <<"---> Enter the assignment's ID: ";
+    cin >> idA;
+    cout << endl <<"---> Enter the assignment's type (task, project, test or tour): ";
+    cin >> kind;
+    cout << endl <<"---> Enter the new name of the assignment: ";
+    cin >> newName;
+
+    int result = modifyAssignment(teacher, code, idG, idA, kind, newName);
+
+    if(result == 0){
+        cout << endl <<"\n~ Changes have been made successfully! \n";
+        cout << endl <<"~ Press any key to continue: ";
+        cin >> k;
+        managementAssignments(teacher);
+
+    } else{
+        cout << endl <<"\n---------------------------------------------------------------------------------------" << endl;
+
+        if(result == 1){
+            cout << endl <<"*********************** ERROR: The assignment type is not valid ***********************\n";
+        } else if(result == 2){
+            cout << endl <<"******   It was not possible to modify, because that course is not registered    ******\n";
+        } else if(result == 3){
+            cout << endl <<"*** It was not possible to modify, because the course has not registered that group ***\n";
+        } else if(result == 4){
+            cout << endl <<"***   It was not possible to modify, because you are not in charge of that group    ***\n";
+        } else {
+            cout << endl <<"****** It was not possible to modify, because that assignment is not registered  ******\n";
+        }
+
+        cout << endl <<"---------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"---> Digit 1: to try again \n";
+        cout << endl <<"---> Press a different key to turn back \n";
+        cout << endl <<"Option: ";
+        cin >> k;
+
+        if(k == '1'){
+            modifyingAssignment(teacher);
+
+        } else{
+            managementAssignments(teacher);
+        }
+    }
 }
 
 
-void removeAssignment(){
-    cout << endl <<"Hola";
+void removeAssignment(Teacher* teacher){
+    system("CLS");
+    cout << endl <<"---------------------->> Removing an assignment from a group <<----------------------" << endl;
+    string code;
+    int idG, idA;
+    string kind;
+    char k = '0';
 
+    cout << endl <<"---> Enter the course's code: ";
+    cin >> code;
+    cout << endl <<"---> Enter the group's ID: ";
+    cin >> idG;
+    cout << endl <<"---> Enter the assignment's ID: ";
+    cin >> idA;
+    cout << endl <<"---> Enter the assignment's type (task, project, test or tour): ";
+    cin >> kind;
+
+    int result = deleteAssignment(teacher, code, idG, idA, kind);
+
+    if(result == 0){
+        cout << endl <<"\n~ The assignment has been removed from the group successfully! \n";
+        cout << endl <<"~ Press any key to continue: ";
+        cin >> k;
+        managementAssignments(teacher);
+
+    } else{
+        cout << endl <<"\n---------------------------------------------------------------------------------------" << endl;
+
+        if(result == 1){
+            cout << endl <<"*********************** ERROR: The assignment type is not valid ***********************\n";
+        } else if(result == 2){
+            cout << endl <<"******   It was not possible to remove, because that course is not registered    ******\n";
+        } else if(result == 3){
+            cout << endl <<"*** It was not possible to remove, because the course has not registered that group ***\n";
+        } else if(result == 4){
+            cout << endl <<"***   It was not possible to remove, because you are not in charge of that group    ***\n";
+        } else {
+            cout << endl <<"****** It was not possible to remove, because that assignment is not registered  ******\n";
+        }
+
+        cout << endl <<"---------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"---> Digit 1: to try again \n";
+        cout << endl <<"---> Press a different key to turn back \n";
+        cout << endl <<"Option: ";
+        cin >> k;
+
+        if(k == '1'){
+            removeAssignment(teacher);
+
+        } else{
+            managementAssignments(teacher);
+        }
+    }
 }
 
 
 void managementAssignments(Teacher* teacher){
-    cout << endl <<"Hola";
+    system("CLS");
+    char k = '0';
 
+    cout << endl <<"--------------------------->> Assignments Management <<---------------------------" << endl;
+    cout << endl <<"                                 Select an option \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"1. ---> Register a new assignment in a group \n";
+    cout << endl <<"2. ---> Modify a registered assignment \n";
+    cout << endl <<"3. ---> Remove a registered assignment from a group \n";
+    cout << endl <<"4. ---> Turn back \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"Option: ";
+    cin >> k;
+
+    if(k == '1'){
+        registerAssignment(teacher);
+
+    } else if(k == '2'){
+        modifyingAssignment(teacher);
+
+    } else if(k == '3'){
+        removeAssignment(teacher);
+
+    } else if(k == '4'){
+        teachersMenu(teacher);
+
+    } else{
+        managementAssignments(teacher);
+    }
 }
 
 
-void registerTalk(){
-    cout << endl <<"Hola";
+void registerTalk(Teacher* teacher){
+    system("CLS");
+    cout << endl <<"------------------>> Registering a new general talk in a semester <<------------------" << endl;
+    int id, year, period, month, day, hour;
+    string name;
+    char k = '0';
 
+    cout << endl <<"---> Enter the ID of the new talk: ";
+    cin >> id;
+    cout << endl <<"---> Enter the semester's year: ";
+    cin >> year;
+    cout << endl <<"---> Enter the semester's period: ";
+    cin >> period;
+    cout << endl <<"---> Enter the name of the new talk: ";
+    cin >> name;
+    cout << endl <<"---> Enter the month (1 to 12) in which the talk will takes place: ";
+    cin >> month;
+    cout << endl <<"---> Enter the day (1 to 31) in which the talk will takes place: ";
+    cin >> day;
+    cout << endl <<"---> Enter the start time (24 hour format) of the talk: ";
+    cin >> hour;
+
+    int result = assignTalkToSemester(id, year, period, name, month, day, hour);
+
+    if(result == 0){
+        cout << endl <<"\n~ The talk has been registered successfully! \n";
+        cout << endl <<"~ Press any key to continue: ";
+        cin >> k;
+        managementTalks(teacher);
+
+    } else{
+        cout << endl <<"\n--------------------------------------------------------------------------------" << endl;
+
+        if(result == 1){
+            cout << endl <<"*** It was not possible to register, because that semester is not registered ***\n";
+        } else if(result == 2){
+            cout << endl <<"************** ERROR: The day or month was out of the valid range **************\n";
+        } else if(result == 3){
+            cout << endl <<"********* ERROR: The month does not coincide with the semester period  *********\n";
+        } else if(result == 4){
+            cout << endl <<"**************** ERROR: The time is not in the requested format ****************\n";
+        } else{
+            cout << endl <<"*** It was not possible to register, because the talk is already registered  ***\n";
+        }
+
+        cout << endl <<"--------------------------------------------------------------------------------" << endl;
+        cout << endl <<"---> Digit 1: to try again \n";
+        cout << endl <<"---> Press a different key to turn back \n";
+        cout << endl <<"Option: ";
+        cin >> k;
+
+        if(k == '1'){
+            registerTalk(teacher);
+
+        } else{
+            managementTalks(teacher);
+        }
+    }
 }
 
 
-void modifyingTalk(){
-    cout << endl <<"Hola";
+void modifyingTalk(Teacher* teacher){
+    system("CLS");
+    cout << endl <<"---------------------------->> Modifying a general talk <<----------------------------" << endl;
+    int id, year, period;
+    string newName;
+    char k = '0';
 
+    cout << endl <<"---> Enter the semester's year: ";
+    cin >> year;
+    cout << endl <<"---> Enter the semester's period: ";
+    cin >> period;
+    cout << endl <<"---> Enter the talk's ID: ";
+    cin >> id;
+    cout << endl <<"---> Enter the new name of the talk: ";
+    cin >> newName;
+
+    if(modifyTalk(id, newName, year, period)){
+        cout << endl <<"\n~ Changes have been made successfully! \n";
+        cout << endl <<"~ Press any key to continue: ";
+        cin >> k;
+        managementTalks(teacher);
+
+    } else{
+        cout << endl <<"\n-----------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"*** It was not possible to modify, because the semester or the talk is not registered ***\n";
+        cout << endl <<"-----------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"---> Digit 1: to try again \n";
+        cout << endl <<"---> Press a different key to turn back \n";
+        cout << endl <<"Option: ";
+        cin >> k;
+
+        if(k == '1'){
+            modifyingTalk(teacher);
+
+        } else{
+            managementTalks(teacher);
+        }
+    }
 }
 
 
-void removeTalk(){
-    cout << endl <<"Hola";
+void removeTalk(Teacher* teacher){
+    system("CLS");
+    cout << endl <<"------------------------->> Removing a talk from a semester <<-------------------------" << endl;
+    int id, year, period;
+    char k = '0';
 
+    cout << endl <<"---> Enter the semester's year: ";
+    cin >> year;
+    cout << endl <<"---> Enter the semester's period: ";
+    cin >> period;
+    cout << endl <<"---> Enter the talk's ID: ";
+    cin >> id;
+
+    int result = deleteTalk(id, year, period);
+
+    if(result == 0){
+        cout << endl <<"\n~ The talk has been removed from the semester successfully! \n";
+        cout << endl <<"~ Press any key to continue: ";
+        cin >> k;
+        managementTalks(teacher);
+
+    } else{
+        cout << endl <<"\n------------------------------------------------------------------------------------------" << endl;
+
+        if(result == 1){
+            cout << endl <<"******    It was not possible to remove, because that semester is not registered    ******\n";
+        } else {
+            cout << endl <<"*** It was not possible to remove, because that talk is not registered in the semester ***\n";
+        }
+
+        cout << endl <<"------------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"---> Digit 1: to try again \n";
+        cout << endl <<"---> Press a different key to turn back \n";
+        cout << endl <<"Option: ";
+        cin >> k;
+
+        if(k == '1'){
+            removeTalk(teacher);
+
+        } else{
+            managementTalks(teacher);
+        }
+    }
 }
 
 
-void managementTalks(){
-    cout << endl <<"Hola";
+void managementTalks(Teacher* teacher){
+    system("CLS");
+    char k = '0';
 
+    cout << endl <<"-------------------------->> General Talks Management <<--------------------------" << endl;
+    cout << endl <<"                                 Select an option \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"1. ---> Register a new talk \n";
+    cout << endl <<"2. ---> Modify a registered talk \n";
+    cout << endl <<"3. ---> Remove a registered talk \n";
+    cout << endl <<"4. ---> Turn back \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"Option: ";
+    cin >> k;
+
+    if(k == '1'){
+        registerTalk(teacher);
+
+    } else if(k == '2'){
+        modifyingTalk(teacher);
+
+    } else if(k == '3'){
+        removeTalk(teacher);
+
+    } else if(k == '4'){
+        teachersMenu(teacher);
+
+    } else{
+        managementTalks(teacher);
+    }
 }
 
 
@@ -2738,9 +3117,48 @@ void teacherReport6(){
 }
 
 
-void teacherReports(){
-    cout << endl <<"Hola";
+void teacherReports(Teacher* teacher){
+    system("CLS");
+    char k = '0';
 
+    cout << endl <<"----------------------------------->> Teacher Reports <<-----------------------------------" << endl;
+    cout << endl <<"                                     Select an option \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"1. ---> Report 1 \n";
+    cout << endl <<"2. ---> Report 2 \n";
+    cout << endl <<"3. ---> Report 3 \n";
+    cout << endl <<"4. ---> Report 4 \n";
+    cout << endl <<"5. ---> Report 5 \n";
+    cout << endl <<"6. ---> Report 6 \n";
+    cout << endl <<"7. ---> Turn back \n";
+    cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+    cout << endl <<"Option: ";
+    cin >> k;
+
+    if(k == '1'){
+        teacherReport1();
+
+    } else if(k == '2'){
+        teacherReport2();
+
+    } else if(k == '3'){
+        teacherReport3();
+
+    } else if(k == '4'){
+        teacherReport4();
+
+    } else if(k == '5'){
+        teacherReport5();
+
+    } else if(k == '6'){
+        teacherReport6();
+
+    } else if(k == '7'){
+        teachersMenu(teacher);
+
+    } else{
+        teacherReports(teacher);
+    }
 }
 
 
@@ -2763,10 +3181,10 @@ void teachersMenu(Teacher* teacher){
         managementAssignments(teacher);
 
     } else if(k == '2'){
-        managementTalks();
+        managementTalks(teacher);
 
     } else if(k == '3'){
-        teacherReports();
+        teacherReports(teacher);
 
     } else if(k == '4'){
         usersMenu();
@@ -2778,15 +3196,117 @@ void teachersMenu(Teacher* teacher){
 }
 
 
-void completeAssignment(Student* student){
-    cout << endl <<"Hola";
+void completeAssignment(Student* student){ //
+    system("CLS");
+    cout << endl <<"--------------------->> Registering an assignment as completed <<---------------------" << endl;
+    string code;
+    int idG, idA;
+    string kind;
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+    int year = ltm->tm_year + 1900;
+    int month = ltm->tm_mon + 1;
+    int day = ltm->tm_mday;
+    int hour = ltm->tm_hour;
+    char k = '0';
 
+    cout << endl <<"---> Enter the course's code: ";
+    cin >> code;
+    cout << endl <<"---> Enter the group's ID: ";
+    cin >> idG;
+    cout << endl <<"---> Enter the assignment's ID: ";
+    cin >> idA;
+    cout << endl <<"---> Enter the assignment's type (task, project, test or tour): ";
+    cin >> kind;
+
+    int result = registerCoAssignment(student, code, idG, idA, kind, year, month, day, hour);
+
+    if(result == 0){
+        cout << endl <<"\n~ You have registered the assignment as completed successfully! \n";
+        cout << endl <<"~ Press any key to continue: ";
+        cin >> k;
+        studentsMenu(student);
+
+    } else{
+        cout << endl <<"\n---------------------------------------------------------------------------------------------------" << endl;
+
+        if(result == 1){
+            cout << endl <<"***************************** ERROR: The assignment type is not valid *****************************\n";
+        } else if(result == 2){
+            cout << endl <<"******        It was not possible to register, because that course is not registered         ******\n";
+        } else if(result == 3){
+            cout << endl <<"*** It was not possible to register, because that course is not taught in the current semester  ***\n";
+        } else if(result == 4){
+            cout << endl <<"***      It was not possible to register, because the course has not registered that group      ***\n";
+        } else if(result == 5){
+            cout << endl <<"******          It was not possible to register, because you are not in that group           ******\n";
+        } else if(result == 6){
+            cout << endl <<"***   It was not possible to register, because that assignment is not registered in the group   ***\n";
+        } else{
+            cout << endl <<"*** It was not possible to register, because you already registered the assignment as completed ***\n";
+        }
+
+        cout << endl <<"---------------------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"---> Digit 1: to try again \n";
+        cout << endl <<"---> Press a different key to turn back \n";
+        cout << endl <<"Option: ";
+        cin >> k;
+
+        if(k == '1'){
+            completeAssignment(student);
+
+        } else{
+            studentsMenu(student);
+        }
+    }
 }
 
 
 void attendTalk(Student* student){
-    cout << endl <<"Hola";
+    system("CLS");
+    cout << endl <<"-------------------->> Registering attendance at a general talk <<--------------------" << endl;
+    int id, year, period;
+    char k = '0';
 
+    cout << endl <<"---> Enter the talk's ID: ";
+    cin >> id;
+    cout << endl <<"---> Enter the current semester year: ";
+    cin >> year;
+    cout << endl <<"---> Enter the current semester period: ";
+    cin >> period;
+
+    int result = registerAtteTalk(student, id, year, period);
+
+    if(result == 0){
+        cout << endl <<"\n~ Your attendance to the talk has been registered successfully! \n";
+        cout << endl <<"~ Press any key to continue: ";
+        cin >> k;
+        studentsMenu(student);
+
+    } else{
+        cout << endl <<"\n--------------------------------------------------------------------------------------------" << endl;
+
+        if(result == 1){
+            cout << endl <<"******    It was not possible to register, because that semester is not registered    ******\n";
+        } else if(result == 2){
+            cout << endl <<"*** It was not possible to register, because that talk is not registered in the semester ***\n";
+        } else{
+            cout << endl <<"*** It was not possible to register, because you already registered the talk as attended ***\n";
+        }
+
+        cout << endl <<"--------------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"---> Digit 1: to try again \n";
+        cout << endl <<"---> Press a different key to turn back \n";
+        cout << endl <<"Option: ";
+        cin >> k;
+
+        if(k == '1'){
+            attendTalk(student);
+
+        } else{
+            studentsMenu(student);
+        }
+    }
 }
 
 
