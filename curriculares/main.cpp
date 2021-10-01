@@ -110,6 +110,7 @@ struct SubListAssignment{
     string name;
     string kind;
     int day, month, year, hour;
+    SubListGroup* myGroup;    // Link to the group
     SubListAssignment* next;  // Link to the next node (Assignment) in the Sub-list
 
     SubListAssignment(int i, string n, string k, int d, int m, int y, int h){
@@ -985,6 +986,7 @@ int assignAssignment(Teacher* teacher, string courseCode, int idG, int idA, stri
     }
 
     SubListAssignment*newAs = new SubListAssignment(idA, name, kind, day, month, year, hour);
+    newAs->myGroup = group;
     SubListAssignment*auxAS;
 
     if((kind == "task") || (kind == "Task")){
@@ -1242,11 +1244,11 @@ int deleteTalk(int id, int year, int period){  // Method that modifies the name 
 }
 
 
-SubListAssignment* searchAssignmentStudent(Student* student, int id, string kind){
+SubListAssignment* searchAssignmentStudent(Student* student, int id, string kind, Course* course){
     SubListAssignment* auxA = student->myAssignments;
 
     while(auxA != NULL){
-        if((id == auxA->id) && (kind == auxA->kind)){
+        if((id == auxA->id) && (kind == auxA->kind) && (course == auxA->myGroup->course)){
             return auxA;
         }
         auxA = auxA->next;
@@ -1296,15 +1298,17 @@ int registerCoAssignment(Student* student, string courseCode, int idG, int idA, 
         srand((unsigned)time(0));
         int grade = (rand()%90)+10;
         newA->grade = grade;
+        newA->myGroup = group;
         student->myAssignments = newA;
         return 0;
     }
 
-    if(searchAssignmentStudent(student, idA, kind) == NULL){ //El estudiante no ha registrado dicha actividad como completada
+    if(searchAssignmentStudent(student, idA, kind, course) == NULL){ //El estudiante no ha registrado dicha actividad como completada
         SubListAssignment* newA = new SubListAssignment(idA, activity->name, kind, day, month, year, hour);
         srand((unsigned)time(0));
         int grade = (rand()%90)+10;
         newA->grade = grade;
+        newA->myGroup = group;
         newA->next = student->myAssignments;
         student->myAssignments = newA;
         return 0;
@@ -2688,17 +2692,28 @@ void showStudentsWithoutD(){
         while(group != NULL){
             if((group->tasks != NULL) || (group->tests != NULL) || (group->tours != NULL) || (group->projects != NULL)){
 
-                if(aux->myAssignments == NULL){
-                    cout<< "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Student ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
-                    cout<< "\nName: " << aux->name << "  <-------->  Student card: " << aux->studentCard << endl;
+                int c = 0;
+                SubListAssignment* completedA = aux->myAssignments;
+
+                while(completedA != NULL){
+                    if((searchAssignment(group, completedA->id, completedA->kind) != NULL) && (searchAssignmentStudent(aux, completedA->id, completedA->kind, group->course) != NULL)){
+                        c ++;
+                    }
+
+                    completedA = completedA->next;
+                }
+
+                if(c == 0){
+                    cout<<  "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Student ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+                    cout<<  "\nName: " << aux->name << "  <-------->  Student card: " << aux->studentCard << endl;
                     cout << "\nHas not delivered any assignment in " << group->course->name << " --> Group " << group->groupId << endl;
-                    cout << "\n---------------------------------------------------------------------------------------" << endl;
+                    cout << "\n--------------------------------------------------------------------------------------------------" << endl;
                 }
             }
+
             group = group->next;
         }
 
-        cout << "\n" << endl;
         aux = aux->next;
     }
 
