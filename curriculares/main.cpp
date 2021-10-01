@@ -3340,11 +3340,42 @@ void teacherReport3(){
 }
 
 
-void teacherReport4(){
-    cout << endl <<"";
+void teacherReport4(Teacher* teacher){
 
+    system("CLS");
+    char k = '0';
+    int id, year, period;
+
+    cout << endl <<"------------------------------------>>Teacher Report 4<<-----------------------------------" << endl;
+
+
+    cout << endl <<"---> Enter the current semester year: ";
+    cin >> year;
+    cout << endl <<"---> Enter the current semester period: ";
+    cin >> period;
+
+    Semester*aS = searchSemester(year, period);
+
+    if(aS == NULL){
+        cout << endl <<"\n--------------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"******    It was not possible to report, because that semester is not registered    ******\n";
+        cout << endl <<"--------------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"---> Digit 1: to try again \n";
+        cout << endl <<"---> Press a different key to turn back \n";
+        cout << endl <<"Option: ";
+        cin >> k;
+
+        if(k == '1'){
+            teacherReport4(teacher);
+        }
+        else{
+            teacherReports(teacher)
+        }
+    }
+    else{
+
+    }
 }
-
 
 void teacherReport5(){
     cout << endl <<"";
