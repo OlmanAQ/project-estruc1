@@ -3252,7 +3252,7 @@ void managementTalks(Teacher* teacher){
 
 
 void teacherReport1(){
-    cout << endl <<"Hola";
+    cout << endl <<"";
 
 }
 
@@ -3335,25 +3335,25 @@ void teacherReport2(Teacher* teacher){
 
 
 void teacherReport3(){
-    cout << endl <<"Hola";
+    cout << endl <<"";
 
 }
 
 
 void teacherReport4(){
-    cout << endl <<"Hola";
+    cout << endl <<"";
 
 }
 
 
 void teacherReport5(){
-    cout << endl <<"Hola";
+    cout << endl <<"";
 
 }
 
 
 void teacherReport6(){
-    cout << endl <<"Hola";
+    cout << endl <<"";
 
 }
 
@@ -3552,7 +3552,7 @@ void attendTalk(Student* student){
 
 
 void showCrashes(Student* student){
-    cout << endl <<"Hola";
+    cout << endl <<"";
 
 }
 
