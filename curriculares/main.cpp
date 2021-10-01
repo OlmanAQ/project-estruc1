@@ -906,17 +906,36 @@ void setAssignmentInKind(SubListAssignment* newAs, string kind, SubListGroup* gr
 }
 
 
-void updateGroupAssignments(string kind, SubListGroup* groupTeacher, SubListGroup* group){
+void updateGroupAssignments(string kind, SubListGroup* groupToC, SubListGroup* group){
     if((kind == "task") || (kind == "Task")){
-        group->tasks = groupTeacher->tasks;
+        group->tasks = groupToC->tasks;
     }
     else if((kind == "project") || (kind == "Project")){
-        group->projects = groupTeacher->projects;
+        group->projects = groupToC->projects;
     }
     else if((kind == "test") || (kind == "Test")){
-        group->tests = groupTeacher->tests;
+        group->tests = groupToC->tests;
     } else{
-        group->tours = groupTeacher->tours;
+        group->tours = groupToC->tours;
+    }
+}
+
+
+void updateStudentAssignments(string kind, SubListGroup* groupToC){
+    Student* aux = firstStudent;
+
+    while(aux != NULL){
+        SubListGroup* group = aux->myGroups;
+
+        while(group != NULL){
+            if((group->groupId == groupToC->groupId) && (group->course == groupToC->course)){
+                updateGroupAssignments(kind, groupToC, group);
+            }
+
+            group = group->next;
+        }
+
+        aux = aux->next;
     }
 }
 
@@ -967,7 +986,6 @@ int assignAssignment(Teacher* teacher, string courseCode, int idG, int idA, stri
 
     SubListAssignment*newAs = new SubListAssignment(idA, name, kind, day, month, year, hour);
     SubListAssignment*auxAS;
-    //ocupo saber en cual de las cuatros  sublista es
 
     if((kind == "task") || (kind == "Task")){
         auxAS = groupTeacher->tasks;
@@ -984,12 +1002,14 @@ int assignAssignment(Teacher* teacher, string courseCode, int idG, int idA, stri
 
     if(auxAS == NULL){
         setAssignmentInKind(newAs, kind, groupTeacher, group);
+        updateStudentAssignments(kind, groupTeacher);
         return 0;
     }
 
     if((month < auxAS->month) || ((month == auxAS->month) && (day < auxAS->day)) || ((month == auxAS->month) && (day == auxAS->day) && (hour <= auxAS->hour))){
         newAs->next = auxAS;
         setAssignmentInKind(newAs, kind, groupTeacher, group);
+        updateStudentAssignments(kind, groupTeacher);
         return 0;
     }
 
@@ -999,6 +1019,7 @@ int assignAssignment(Teacher* teacher, string courseCode, int idG, int idA, stri
             auxAS->next = newAs;
             newAs->next = auxAsnext;
             updateGroupAssignments(kind, groupTeacher, group); // Las tareas del grupo de curso quedan igual a las del profe
+            updateStudentAssignments(kind, groupTeacher);
             return 0;
         }
         auxAS = auxAsnext;
@@ -1007,6 +1028,7 @@ int assignAssignment(Teacher* teacher, string courseCode, int idG, int idA, stri
 
     auxAS->next = newAs;
     updateGroupAssignments(kind, groupTeacher, group); // Las tareas del grupo de curso quedan igual a las del profe
+    updateStudentAssignments(kind, groupTeacher);
     return 0;
 }
 
@@ -1365,16 +1387,16 @@ void loadData(){  // Method that loads the initial data for the efficient perfor
     insertCourse("English", "CI1230", 3);
     insertCourse("Oral communication", "CI1107", 2);
 
-    assignGroupToCourse(50, "IC2001");  // Data structures
-    assignGroupToCourse(51, "IC2001");  // Data structures
-    assignGroupToCourse(52, "MA1103");  // Algebra
-    assignGroupToCourse(51, "MA1103");  // Algebra
-    assignGroupToCourse(47, "CI1230");  // English
-    assignGroupToCourse(48, "CI1230");  // English
-    assignGroupToCourse(51, "IC2101");  // Object-oriented programming
-    assignGroupToCourse(50, "IC2101");  // Object-oriented programming
-    assignGroupToCourse(10, "CI1107");  // Oral communication
-    assignGroupToCourse(11, "CI1107");  // Oral communication
+    assignGroupToCourse(50, "IC2001");  // Data structures --> 50
+    assignGroupToCourse(51, "IC2001");  // Data structures --> 51
+    assignGroupToCourse(52, "MA1103");  // Algebra --> 52
+    assignGroupToCourse(51, "MA1103");  // Algebra --> 51
+    assignGroupToCourse(47, "CI1230");  // English --> 47
+    assignGroupToCourse(48, "CI1230");  // English --> 48
+    assignGroupToCourse(51, "IC2101");  // Object-oriented programming --> 51
+    assignGroupToCourse(50, "IC2101");  // Object-oriented programming --> 50
+    assignGroupToCourse(10, "CI1107");  // Oral communication --> 10
+    assignGroupToCourse(11, "CI1107");  // Oral communication --> 11
 
     assignGroupToTeacher(50, "IC2001", 208310022);  // Diego  --> Data structures --> 50
     assignGroupToTeacher(51, "IC2101", 208310022);  // Diego  --> Object-oriented programming --> 51
@@ -1418,15 +1440,118 @@ void loadData(){  // Method that loads the initial data for the efficient perfor
     assignCourseToSemester(2023, 2, "IC2001");  // Data structures --> second period --> 2023
     assignCourseToSemester(2023, 2, "IC2101");  // Object-oriented programming --> second period --> 2023
 
-    assignTalkToSemester(1, 2021, 1, "Alimentos Saludables", 2, 5, 9);
-    assignTalkToSemester(2, 2021, 1, "Odontologia", 3, 5,  10);
+    assignTalkToSemester(1, 2021, 1, "Healthy food", 2, 5, 9);
+    assignTalkToSemester(2, 2021, 1, "Odontology", 3, 5,  10);
+    assignTalkToSemester(3, 2021, 1, "Psychology", 4, 10, 10);
+    assignTalkToSemester(4, 2021, 1, "Biotechnology", 4, 25,  11);
+    assignTalkToSemester(5, 2021, 1, "Physical conditioning", 6, 5,  11);
+    assignTalkToSemester(1, 2021, 2, "Healthy food", 8, 5, 13);
+    assignTalkToSemester(2, 2021, 2, "Emotional intelligence", 7, 10, 15);
+    assignTalkToSemester(3, 2021, 2, "Healthy habits", 9, 7, 11);
+    assignTalkToSemester(4, 2021, 2, "Sport and recreation", 7, 2,  10);
+    assignTalkToSemester(5, 2021, 2, "Robotics", 11, 5, 9);
 
-    assignTalkToSemester(1, 2021, 2, "Habitos saludables", 8, 5, 13);
-    assignTalkToSemester(2, 2021, 2, "Psicologia", 7, 1, 15);
-    assignTalkToSemester(3, 2021, 2, "Robots", 9, 7, 11);
-    assignTalkToSemester(4, 2021, 2, "Ejercicios", 7, 2,  10);
-    assignTalkToSemester(5, 2021, 2, "Alimentos Saludables", 11, 5, 9);
+    registerAtteTalk(searchStudent(20201802), 1, 2021, 1);  // Antonio's attended talks
+    registerAtteTalk(searchStudent(20201802), 2, 2021, 1);
+    registerAtteTalk(searchStudent(20201802), 3, 2021, 1);
 
+    registerAtteTalk(searchStudent(20211503), 2, 2021, 1);  // Anthony's attended talks
+    registerAtteTalk(searchStudent(20211503), 3, 2021, 1);
+    registerAtteTalk(searchStudent(20211503), 4, 2021, 1);
+
+    registerAtteTalk(searchStudent(20211909), 1, 2021, 1);  // Helena's attended talks
+    registerAtteTalk(searchStudent(20211909), 3, 2021, 1);
+    registerAtteTalk(searchStudent(20211909), 5, 2021, 1);
+
+    registerAtteTalk(searchStudent(20211406), 1, 2021, 1);  // Andrew's attended talks
+    registerAtteTalk(searchStudent(20211406), 3, 2021, 1);
+    registerAtteTalk(searchStudent(20211406), 5, 2021, 1);
+
+    registerAtteTalk(searchStudent(20201101), 1, 2021, 1);  // Valeria's attended talks
+    registerAtteTalk(searchStudent(20201101), 2, 2021, 1);
+    registerAtteTalk(searchStudent(20201101), 3, 2021, 1);
+    registerAtteTalk(searchStudent(20201101), 4, 2021, 1);
+    registerAtteTalk(searchStudent(20201101), 5, 2021, 1);
+
+    assignAssignment(searchTeacher(208310022), "IC2001", 50, 1, "task", "short task #1", 10, 2, 2021, 23); // Teacher Diego assignments
+    assignAssignment(searchTeacher(208310022), "IC2001", 50, 2, "task", "short task #2", 20, 2, 2021, 23);
+    assignAssignment(searchTeacher(208310022), "IC2001", 50, 1, "test", "test #1", 25, 3, 2021, 10);
+    assignAssignment(searchTeacher(208310022), "IC2001", 50, 1, "tour", "tour #1", 29, 3, 2021, 10);
+    assignAssignment(searchTeacher(208310022), "IC2001", 50, 1, "project", "project #1", 25, 4, 2021, 23);
+    assignAssignment(searchTeacher(208310022), "IC2101", 51, 1, "task", "short task #1", 10, 1, 2021, 20);
+    assignAssignment(searchTeacher(208310022), "IC2101", 51, 2, "task", "short task #2", 20, 1, 2021, 20);
+    assignAssignment(searchTeacher(208310022), "IC2101", 51, 1, "project", "project #1", 25, 4, 2021, 20);
+    assignAssignment(searchTeacher(208310022), "IC2101", 51, 1, "test", "test #1", 25, 2, 2021, 10);
+    assignAssignment(searchTeacher(208310022), "IC2101", 51, 1, "tour", "tour #1", 29, 2, 2021, 10);
+
+    assignAssignment(searchTeacher(207250011), "IC2001", 51, 1, "task", "short task #1", 15, 2, 2021, 23); // Teacher Jairo assignments
+    assignAssignment(searchTeacher(207250011), "IC2001", 51, 2, "task", "short task #2", 25, 2, 2021, 23);
+    assignAssignment(searchTeacher(207250011), "IC2001", 51, 1, "test", "test #1", 25, 3, 2021, 10);
+    assignAssignment(searchTeacher(207250011), "IC2001", 51, 1, "tour", "tour #1", 30, 3, 2021, 10);
+    assignAssignment(searchTeacher(207250011), "IC2001", 51, 1, "project", "project #1", 25, 4, 2021, 23);
+    assignAssignment(searchTeacher(207250011), "IC2101", 50, 1, "task", "short task #1", 15, 1, 2021, 20);
+    assignAssignment(searchTeacher(207250011), "IC2101", 50, 2, "task", "short task #2", 20, 1, 2021, 20);
+    assignAssignment(searchTeacher(207250011), "IC2101", 50, 1, "project", "project #1", 25, 4, 2021, 20);
+    assignAssignment(searchTeacher(207250011), "IC2101", 50, 1, "test", "test #1", 25, 2, 2021, 10);
+    assignAssignment(searchTeacher(207250011), "IC2101", 50, 1, "tour", "tour #1", 30, 2, 2021, 10);
+
+    assignAssignment(searchTeacher(208320334), "MA1103", 51, 1, "task", "short task #1", 15, 2, 2021, 23); // Teacher Carlos assignments
+    assignAssignment(searchTeacher(208320334), "MA1103", 51, 1, "test", "test #1", 25, 3, 2021, 10);
+    assignAssignment(searchTeacher(208320334), "MA1103", 51, 1, "tour", "tour #1", 30, 3, 2021, 10);
+    assignAssignment(searchTeacher(208320334), "MA1103", 51, 1, "project", "project #1", 25, 4, 2021, 23);
+    assignAssignment(searchTeacher(208320334), "MA1103", 52, 1, "task", "short task #1", 15, 1, 2021, 20);
+    assignAssignment(searchTeacher(208320334), "MA1103", 52, 1, "test", "test #1", 25, 2, 2021, 10);
+    assignAssignment(searchTeacher(208320334), "MA1103", 52, 1, "tour", "tour #1", 30, 3, 2021, 10);
+    assignAssignment(searchTeacher(208320334), "MA1103", 52, 1, "project", "project #1", 25, 4, 2021, 20);
+
+    assignAssignment(searchTeacher(204520224), "CI1230", 47, 1, "task", "short task #1", 15, 2, 2021, 23); // Teacher Nancy assignments
+    assignAssignment(searchTeacher(204520224), "CI1230", 47, 1, "test", "test #1", 25, 3, 2021, 10);
+    assignAssignment(searchTeacher(204520224), "CI1230", 47, 1, "tour", "tour #1", 30, 3, 2021, 10);
+    assignAssignment(searchTeacher(204520224), "CI1230", 47, 1, "project", "project #1", 25, 4, 2021, 23);
+    assignAssignment(searchTeacher(204520224), "CI1230", 48, 1, "task", "short task #1", 15, 1, 2021, 20);
+    assignAssignment(searchTeacher(204520224), "CI1230", 48, 1, "test", "test #1", 25, 2, 2021, 10);
+    assignAssignment(searchTeacher(204520224), "CI1230", 48, 1, "tour", "tour #1", 30, 3, 2021, 10);
+    assignAssignment(searchTeacher(204520224), "CI1230", 48, 1, "project", "project #1", 25, 4, 2021, 20);
+
+    assignAssignment(searchTeacher(209320221), "CI1107", 10, 1, "task", "short task #1", 10, 2, 2021, 23); // Teacher Hellen assignments
+    assignAssignment(searchTeacher(209320221), "CI1107", 10, 1, "test", "test #1", 21, 3, 2021, 10);
+    assignAssignment(searchTeacher(209320221), "CI1107", 10, 1, "tour", "tour #1", 10, 4, 2021, 10);
+    assignAssignment(searchTeacher(209320221), "CI1107", 10, 1, "project", "project #1", 21, 4, 2021, 23);
+    assignAssignment(searchTeacher(209320221), "CI1107", 11, 1, "task", "short task #1", 10, 1, 2021, 20);
+    assignAssignment(searchTeacher(209320221), "CI1107", 11, 1, "test", "test #1", 21, 2, 2021, 10);
+    assignAssignment(searchTeacher(209320221), "CI1107", 11, 1, "tour", "tour #1", 10, 5, 2021, 10);
+    assignAssignment(searchTeacher(209320221), "CI1107", 11, 1, "project", "project #1", 21, 5, 2021, 20);
+
+    registerCoAssignment(searchStudent(20201802), "IC2001", 50, 1, "task", 2021, 2, 10, 20);  // Antonio completed assignments
+    registerCoAssignment(searchStudent(20201802), "IC2001", 50, 1, "project", 2021, 4, 25, 20);
+    registerCoAssignment(searchStudent(20201802), "CI1230", 47, 1, "task", 2021, 2, 15, 20);
+    registerCoAssignment(searchStudent(20201802), "CI1230", 47, 1, "tour", 2021, 3, 30, 10);
+
+    registerCoAssignment(searchStudent(20211503), "IC2001", 50, 1, "task", 2021, 2, 10, 21);  // Anthony completed assignments
+    registerCoAssignment(searchStudent(20211503), "IC2001", 50, 2, "task", 2021, 2, 19, 21);
+    registerCoAssignment(searchStudent(20211503), "MA1103", 51, 1, "task", 2021, 2, 15, 21);
+    registerCoAssignment(searchStudent(20211503), "MA1103", 51, 1, "test", 2021, 3, 25, 10);
+
+    registerCoAssignment(searchStudent(20211909), "IC2001", 50, 1, "task", 2021, 2, 10, 21);  // Helena completed assignments
+    registerCoAssignment(searchStudent(20211909), "IC2001", 50, 2, "project", 2021, 4, 25, 21);
+    registerCoAssignment(searchStudent(20211909), "IC2101", 51, 1, "task", 2021, 1, 10, 21);
+    registerCoAssignment(searchStudent(20211909), "IC2101", 51, 1, "tour", 2021, 2, 29, 21);
+
+    registerCoAssignment(searchStudent(20211406), "IC2001", 50, 1, "task", 2021, 2, 10, 21);  // Andrew completed assignments
+    registerCoAssignment(searchStudent(20211406), "IC2001", 50, 2, "task", 2021, 2, 20, 21);
+    registerCoAssignment(searchStudent(20211406), "IC2001", 50, 1, "test", 2021, 3, 25, 10);
+    registerCoAssignment(searchStudent(20211406), "IC2001", 50, 1, "tour", 2021, 3, 29, 10);
+    registerCoAssignment(searchStudent(20211406), "IC2001", 50, 1, "project", 2021, 4, 25, 21);
+
+    registerCoAssignment(searchStudent(20201101), "IC2001", 50, 1, "task", 2021, 2, 10, 18);  // Valeria completed assignments
+    registerCoAssignment(searchStudent(20201101), "IC2001", 50, 2, "task", 2021, 2, 20, 18);
+    registerCoAssignment(searchStudent(20201101), "IC2001", 50, 1, "test", 2021, 3, 25, 10);
+    registerCoAssignment(searchStudent(20201101), "IC2001", 50, 1, "tour", 2021, 3, 29, 10);
+    registerCoAssignment(searchStudent(20201101), "IC2001", 50, 1, "project", 2021, 4, 25, 18);
+    registerCoAssignment(searchStudent(20201101), "CI1107", 10, 1, "task", 2021, 2, 10, 18);
+    registerCoAssignment(searchStudent(20201101), "CI1107", 10, 1, "test", 2021, 3, 21, 10);
+    registerCoAssignment(searchStudent(20201101), "CI1107", 10, 1, "tour", 2021, 4, 10, 10);
+    registerCoAssignment(searchStudent(20201101), "CI1107", 10, 1, "project", 2021, 4, 21, 18);
 
 }
 
@@ -2550,8 +2675,36 @@ void managementGroups(){
 
 
 void showStudentsWithoutD(){
-    cout << "hola";
+    system("CLS");
+    char k = '0';
+    cout << endl <<"------------>> Showing students who have not registered any delivery in some course <<------------" << endl;
 
+    Student* aux = firstStudent;
+
+    while(aux != NULL){
+
+        SubListGroup* group = aux->myGroups;
+
+        while(group != NULL){
+            if((group->tasks != NULL) || (group->tests != NULL) || (group->tours != NULL) || (group->projects != NULL)){
+
+                if(aux->myAssignments == NULL){
+                    cout<< "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Student ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+                    cout<< "\nName: " << aux->name << "  <-------->  Student card: " << aux->studentCard << endl;
+                    cout << "\nHas not delivered any assignment in " << group->course->name << " --> Group " << group->groupId << endl;
+                    cout << "\n---------------------------------------------------------------------------------------" << endl;
+                }
+            }
+            group = group->next;
+        }
+
+        cout << "\n" << endl;
+        aux = aux->next;
+    }
+
+    cout << endl <<"~ Press any key to turn back to administrator reports: ";
+    cin >> k;
+    adminReports();
 }
 
 
