@@ -1,4 +1,6 @@
 # depslib dependency file v1.0
-1632899639 source:d:\usuario\documents\github\project-estruc1\curriculares\main.cpp
+1633044092 source:d:\usuario\documents\github\project-estruc1\curriculares\main.cpp
 	<iostream>
+	<cstdlib>
+	<ctime>
 
