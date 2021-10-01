@@ -3250,13 +3250,43 @@ void teacherReport4(Teacher* teacher){
             teacherReport4(teacher);
         }
         else{
-            teacherReports(teacher)
+            teacherReports(teacher);
         }
     }
     else{
+        cout<<"\nStudents who have participated in all the talks of " << period << " semester " << year << endl;
+    Student* auxStudents = firstStudent;
+    SubListTalk*auxTSe = aS->myTalks;
 
+    while(auxStudents != NULL){
+        int cS = 0;
+        int a = 0;
+
+        while(auxTSe != NULL){
+            SubListTalk*auxTSt = searchTalkStudent(auxStudents, auxTSe->id, auxTSe->year, auxTSe->month);
+
+            if(auxTSt != NULL){
+                a ++;
+            }
+            cS ++;
+            auxTSe = auxTSe->next;
+        }
+        if(cS != 0 && cS == a){
+            cout<<  "\nName: " << auxStudents->name << "  <-------->  Student card: " << auxStudents->studentCard << endl;
+        }
+        auxStudents = auxStudents->next;
     }
+    }
+    cout << endl <<"~ Press any key to turn back to administrator reports: ";
+    cin >> k;
+    teacherReports(teacher);
 }
+
+
+
+
+
+
 
 void teacherReport5(){
     cout << endl <<"";
@@ -3298,7 +3328,7 @@ void teacherReports(Teacher* teacher){
         teacherReport3();
 
     } else if(k == '4'){
-        teacherReport4();
+        teacherReport4(teacher);
 
     } else if(k == '5'){
         teacherReport5();
