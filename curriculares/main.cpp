@@ -3257,7 +3257,6 @@ void teacherReport2(Teacher* teacher){
     while(groups != NULL){
 
         cout << "\n" << groups->course->name << " --> Group " << groups->groupId << endl;
-        cout << "\n---------------------------------------------------------------------------------------" << endl;
         SubListAssignment*auxTasks = groups->tasks;
         cout<< "\n--------------------------------------- Tasks  ---------------------------------------\n";
         if(auxTasks == NULL){
