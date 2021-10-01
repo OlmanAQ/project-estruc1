@@ -1559,199 +1559,7 @@ void loadData(){  // Method that loads the initial data for the efficient perfor
 
 }
 
-// ------------------------------------------------------- Tests -------------------------------------------------------
-
-void showAdmins(){
-    cout<<"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Showing Administrators ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
-    Administrator* aux = firstAdmin;
-
-    while(aux != NULL){
-        cout << "\nName: " << aux->name << endl;
-        aux = aux->next;
-    }
-}
-
-
-void showTeachers(){
-    cout<<"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Showing Teachers ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
-    Teacher* aux = firstTeacher;
-
-    while(aux != NULL){
-        cout << "\nName: " << aux->name << endl;
-        cout << "\nIdentification: " << aux->identification << endl;
-        cout << "\nLocation: " << aux->location << endl;
-        cout << "\n--------------------------------------------------------------------------------------" << endl;
-        aux = aux->next;
-    }
-}
-
-
-void showStudents(){
-    cout<<"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Showing Students ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
-    Student* aux = firstStudent;
-
-    while(aux != NULL){
-        cout << "\nName: " << aux->name << endl;
-        cout << "\nStudent card: " << aux->studentCard << endl;
-        cout << "\nLocation: " << aux->location << endl;
-        cout << "\n--------------------------------------------------------------------------------------" << endl;
-        aux = aux->next;
-    }
-}
-
-
-void showSemesters(){
-    cout<<"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Showing Semesters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
-    Semester* aux = firstSemester;
-
-    while(aux != NULL){
-        cout << "\nYeard: " << aux->year << endl;
-        cout << "\nPeriod: " << aux->period << endl;
-        cout << "\n--------------------------------------------------------------------------------------" << endl;
-        aux = aux->next;
-    }
-}
-
-
-void showCourses(){
-    cout<<"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Showing Courses ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
-    Course* aux = firstCourse;
-
-    if(aux != NULL){
-        do{
-            cout << "\nName: " << aux->name << endl;
-            cout << "\nCode: " << aux->code << endl;
-            cout << "\nCredits " << aux->credits << endl;
-            cout << "\n--------------------------------------------------------------------------------------" << endl;
-            aux = aux->next;
-        }while(aux != firstCourse);
-    }
-}
-
-
-void showCoursesGroups(){
-    Course* aux = firstCourse;
-
-    if(aux != NULL){
-        do{
-            cout<< "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Course ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
-            cout<< "\nName: " << aux->name << endl;
-            cout<< "\n--------------------------------------- Groups ---------------------------------------\n";
-
-            SubListGroup* groups = aux->myGroups;
-
-            while(groups != NULL){
-                cout << "\nGroup: " << groups->groupId << endl;
-                cout << "\n--------------------------------------------------------------------------------------" << endl;
-                groups = groups->next;
-            }
-
-            cout << "\n" << endl;
-            aux = aux->next;
-
-        }while(aux != firstCourse);
-    }
-}
-
-
-void showTeachersGroups(){
-    Teacher* aux = firstTeacher;
-
-    while(aux != NULL){
-        cout<< "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Teacher ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
-        cout<< "\nName: " << aux->name << endl;
-        cout<< "\n--------------------------------------- Groups  ---------------------------------------\n";
-
-        SubListGroup* groups = aux->myGroups;
-
-        while(groups != NULL){
-            cout << "\n" << groups->course->name << " --> Group " << groups->groupId << endl;
-            cout << "\n---------------------------------------------------------------------------------------" << endl;
-            groups = groups->next;
-        }
-
-        cout << "\n" << endl;
-        aux = aux->next;
-    }
-}
-
-
-void showStudentsGroups(){
-    Student* aux = firstStudent;
-
-    while(aux != NULL){
-        cout<< "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Student ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
-        cout<< "\nName: " << aux->name << "  <-------->  Student card: " << aux->studentCard << endl;
-        cout<< "\n--------------------------------------- Groups  ---------------------------------------\n";
-
-        SubListGroup* groups = aux->myGroups;
-
-        while(groups != NULL){
-            cout << "\n" << groups->course->name << " --> Group " << groups->groupId << endl;
-            cout << "\n---------------------------------------------------------------------------------------" << endl;
-            groups = groups->next;
-        }
-
-        cout << "\n" << endl;
-        aux = aux->next;
-    }
-}
-
-
-void showCoursesSemesters(){
-    cout<<"\n~~~~~~~~ Showing Courses in Semester ~~~~~~~~\n";
-
-    Semester* auxS = firstSemester;
-
-    while(auxS != NULL){
-
-        cout << "\nYeard: " << auxS->year << endl;
-        cout << "\nPeriod: " << auxS->period << endl;
-        cout << "\n--------------------------------------------------------------------------------------" << endl;
-
-
-
-    if(auxS != NULL && auxS->myCourses != NULL){
-
-        SubListCourse*cs = auxS->myCourses;
-
-    while(cs != NULL){
-
-
-        cout << "\nCourse: " << cs->enC->name << endl;
-        cout << "\n--------------------------------------------------------------------------------------" << endl;
-        cs=cs->next;
-    }
-    }
-    auxS=auxS->next;
-    }
-}
-
-
-void showTalkSemester(){
-    cout<<"\n~~~~~~~~ Showing Talks in Semester ~~~~~~~~\n";
-
-    Semester* auxS = firstSemester;
-
-    while(auxS != NULL){
-
-        cout << "\nSemester" << endl;
-        cout << "\nYeard: " << auxS->year << endl;
-        cout << "\nPeriod: " << auxS->period << endl;
-        cout<<"\nTalks" << endl;
-        SubListTalk*TS = auxS->myTalks;
-
-        while(TS != NULL){
-            cout << "\nName: " << TS->name << endl;
-            cout << "\nDate: " << TS->day << "/" << TS->month << "/" << TS->year << endl;
-            cout << "\n--------------------------------------------------------------------------------------" << endl;
-            TS=TS->next;
-        }
-        auxS=auxS->next;
-    }
-    cout << "\n--------------------------------------------------------------------------------------" << endl;
-}
-
+// ------------------------------------------------------- Console actions -------------------------------------------------------
 
 void registerAdmin(){
     system("CLS");
@@ -2724,8 +2532,81 @@ void showStudentsWithoutD(){
 
 
 void showTalksWithMoreA(){
-    cout << "hola";
+    system("CLS");
+    int year, period;
+    char k = '0';
+    cout << endl <<"--------------->> Showing the 3 talks with the most attendance of a semester <<---------------" << endl;
 
+    cout << endl <<"---> Enter the semester's year: ";
+    cin >> year;
+    cout << endl <<"---> Enter the semester's period: ";
+    cin >> period;
+
+    Semester* semester = searchSemester(year, period);
+
+    if(semester == NULL){
+        cout << endl <<"\n----------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"******    It was not possible to show, because that semester is not registered    ******\n";
+        cout << endl <<"----------------------------------------------------------------------------------------" << endl;
+        cout << endl <<"---> Digit 1: to try again \n";
+        cout << endl <<"---> Press a different key to turn back \n";
+        cout << endl <<"Option: ";
+        cin >> k;
+
+        if(k == '1'){
+            showTalksWithMoreA();
+
+        } else{
+            adminReports();
+        }
+    }
+
+    int first, second, third = 0;
+    SubListTalk* firstT = NULL;
+    SubListTalk* secondT = NULL;
+    SubListTalk* thirdT = NULL;
+    SubListTalk* aux = semester->myTalks;
+
+    while(aux != NULL){
+        Student* auxS = firstStudent;
+        int amount = 0;
+
+        while(auxS != NULL){
+            if(searchTalkStudent(auxS, aux->id, aux->year, aux->month) != NULL){
+                amount ++;
+            }
+
+            auxS = auxS->next;
+        }
+
+        if(amount > first){
+            first = amount;
+            firstT = aux;
+        } else if(amount > second){
+            second = amount;
+            secondT = aux;
+        } else if(amount > third){
+            third = amount;
+            thirdT = aux;
+        }
+
+        aux = aux->next;
+    }
+
+    cout<< "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~ Talks with the highest student attendance ~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+    if(firstT != NULL){
+        cout<<  "\n* 1st place ~~~> Talk: " << firstT->name << "  <~~>  Number of students who attended: " << first << "\n" << endl;
+    }
+    if(secondT != NULL){
+        cout<<  "\n* 2nd place ~~~> Talk: " << secondT->name << "  <~~>  Number of students who attended: " << second << "\n" << endl;
+    }
+    if(thirdT != NULL){
+        cout<<  "\n* 3rd place ~~~> Talk: " << thirdT->name << "  <~~>  Number of students who attended: " << third << "\n" << endl;
+    }
+
+    cout << endl <<"~ Press any key to turn back to administrator reports: ";
+    cin >> k;
+    adminReports();
 }
 
 
@@ -3727,34 +3608,5 @@ void mainMenu(){
 int main(){
     loadData();
     mainMenu();
-
-/*
-    showAdmins();
-    showTeachers();
-    showStudents();
-    showSemesters();
-    showCourses();
-
-    showCoursesGroups();
-    showTeachersGroups();
-    showStudentsGroups();
-    showCoursesSemesters(); */
-
-    //deleteTeacherGroup(50, "IC2001", 208310022);
-    //showTeachersGroups();
-
-    //deleteStudentGroup(50, "IC2001", 20201101);
-    //deleteStudentGroup(50, "IC2001", 20211909);
-    //showStudentsGroups();
-
-    //modifyTeacher(208310022, "Cartago");  // Diego moves to Cartago
-    //modifyStudent(20201802, "Cartago");   // Antonio moves to Cartago
-    //deleteTeacher(208320334);  // RIP Carlos
-    //deleteStudent(20211503);   // RIP Anthony
-
-    //cout << "\n------------------------------------ After some changes ------------------------------------" << endl;
-    //showAdmins();
-    //showTeachers();
-    //showStudents();
     return 0;
 }
