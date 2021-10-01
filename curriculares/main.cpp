@@ -90,7 +90,7 @@ struct Course{
     string name;
     string code;
     int credits;
-    Course* next;  // Link to the next node (Course) in the list
+    Course* next;                   // Link to the next node (Course) in the list
     struct SubListGroup* myGroups;  // Link to the course's groups
 
     Course(string n, string c, int cred){
@@ -400,12 +400,12 @@ bool deleteStudent(int studentCard){  // Method that deletes a registered studen
 }
 
 
-Semester* searchSemester(int year, int period){  // The method that searches for a semester through its year and its period
+Semester* searchSemester(int year, int period){  // Method that search for a semester through its year and its period
     Semester* aux = firstSemester;
 
     while(aux != NULL){                 // The semester list is toured
         if(aux->year == year && aux->period == period){  // Years and periods are compared
-            return aux;                 // In case the years and periods match, then the semester is returned
+            return aux;                 // In case the year and period matches, then the semester is returned
         }
         aux = aux->next;
     }
@@ -423,7 +423,7 @@ bool insertSemester( int period, int year, string modality){   // Method that in
     }
 
     if(searchSemester(year, period) != NULL ){  // If the given "year and period" is repeated (that semester is already registered), the insertion can't be performed
-        return false;                        // So, "false" is returned
+        return false;                           // So, "false" is returned
     }
     if(period != 1 && period != 2){
         return false;
@@ -444,10 +444,10 @@ bool insertSemester( int period, int year, string modality){   // Method that in
 
     while(nextAux != NULL){                      // Case #2: the year and the period of the new semester are not the lowest but neither the highest
         if((year < nextAux->year) || ((year == nextAux->year) & (period < nextAux->period))){  // In this case, a loop is created in order to find the semesters that go before and after the new one
-            preAux->next = newSemester;       // The "preAux" node, points to the new node
-            newSemester->next = nextAux;          // The new node, points to the "nextAux" node
-            newSemester->previous = preAux;     // The new node, points to the "preAux" node
-            nextAux->previous = newSemester;    // The "nextAux" node, points to the new node
+            preAux->next = newSemester;       // The "next" pointer of "preAux" node, points to the new node
+            newSemester->next = nextAux;      // The "next" pointer of the new node, points to the "nextAux" node
+            newSemester->previous = preAux;   // The "previous" pointer of new node, points to the "preAux" node
+            nextAux->previous = newSemester;  // The "previous" pointer of "nextAux" node, points to the new node
             return true;
         }
         preAux = nextAux;
@@ -460,28 +460,28 @@ bool insertSemester( int period, int year, string modality){   // Method that in
 }
 
 
-bool modifySemester(int y, int p, string newModality){  // Falta documentar (Olman)
-    Semester* aux = searchSemester(y,p);  // The teacher is searched using the "searchTeacher" method
+bool modifySemester(int y, int p, string newModality){
+    Semester* aux = searchSemester(y,p);  // The semester is searched using the "searchSemester" method
 
     if(aux != NULL){
-        aux->modality = newModality;   // If the teacher is registered, then his information is modified
+        aux->modality = newModality;   // If the semester is registered, then its information is modified
         return true;
     }
 
-    return false;  // If the teacher is not registered, then "false" is returned
+    return false;  // If the semester is not registered, then "false" is returned
 }
 
 
-Course* searchCourse(string code){  // The method that searches for a semester through his code
+Course* searchCourse(string code){  // Method that search for a course through his code
     if(firstCourse->code == code){
         return firstCourse;
     }
 
     Course* aux = firstCourse->next;
 
-    while(aux != firstCourse){                       // The course list is toured
-        if(aux->code == code){  // Codes are compared
-            return aux;                       // In case the codes match, then the course is returned
+    while(aux != firstCourse){   // The course list is toured
+        if(aux->code == code){   // Codes are compared
+            return aux;          // In case the codes match, then the course is returned
         }
         aux = aux->next;
     }
@@ -490,7 +490,7 @@ Course* searchCourse(string code){  // The method that searches for a semester t
 }
 
 
-bool insertCourse(string n, string c, int credis){  // Method that inserts a new teacher in the "Course" list (insertion at the end)
+bool insertCourse(string n, string c, int credis){  // Method that inserts a new course in the "Course" list (insertion at the end)
 
     if(firstCourse == NULL){       // If the list is empty, then the new node is created and it becomes the first one
         Course* newCourse = new Course(n,c,credis);
@@ -500,7 +500,7 @@ bool insertCourse(string n, string c, int credis){  // Method that inserts a new
     }
 
     if(searchCourse(c) != NULL){  // If the given "code" is repeated (that means, that course is already registered) then the insertion can't be performed
-        return false;               // So, "false" is returned
+        return false;             // So, "false" is returned
     }
 
     Course* newCourse = new Course(n, c, credis);  // Otherwise, the new node is inserted at the end of the list
@@ -553,7 +553,7 @@ bool deleteCourse(string code){        // Method that deletes a registered cours
 
         Course* preAux = firstCourse;  // Auxiliary variable that will be useful in order to find the course that goes before the course we want to delete
 
-        while(preAux->next != aux){  // Loop that finds the course who goes before the student we want to delete
+        while(preAux->next != aux){  // Loop that finds the course who goes before the course we want to delete
             preAux = preAux->next;
         }
         preAux->next = aux->next;    // Finally, the course is deleted from the list
@@ -583,25 +583,25 @@ int assignGroupToCourse(int groupId, string code){  // Method that adds a new gr
 
     if(course != NULL){
 
-        if(course->myGroups == NULL){     //La sublista está vacía
+        if(course->myGroups == NULL){                           // Case: The sub-list is empty
             SubListGroup* newGroup = new SubListGroup(groupId);
             newGroup->course = course;
             course->myGroups = newGroup;
             return 0;
         }
 
-        if(searchGroupInCourse(groupId, course) == NULL){  // la sublista tiene al menos un elemento
+        if(searchGroupInCourse(groupId, course) == NULL){       // Case: The sublist has at least one element
 
             SubListGroup* newGroup = new SubListGroup(groupId);
             newGroup->course = course;
 
-            if(groupId < course->myGroups->groupId){    // inserción al inicio
+            if(groupId < course->myGroups->groupId){     // Insertion at the start
                 newGroup->next = course->myGroups;
                 course->myGroups = newGroup;
                 return 0;
             }
 
-            SubListGroup* aux = course->myGroups->next;  // inserción en medio
+            SubListGroup* aux = course->myGroups->next;  // Insertion in the middle
             SubListGroup* preAux = course->myGroups;
 
             while(aux != NULL){
@@ -614,14 +614,14 @@ int assignGroupToCourse(int groupId, string code){  // Method that adds a new gr
                 aux = aux->next;
             }
 
-            preAux->next = newGroup;  // inserción al final
+            preAux->next = newGroup;  // Insertion at the start
             return 0;
         }
 
-        return 2;  // El grupo ya existe en dicho curso
+        return 2;  // The group is already registered
     }
 
-    return 1;  // el curso no existe
+    return 1;  // The course is not registered
 }
 
 
@@ -651,14 +651,14 @@ int assignGroupToTeacher(int groupId, string courseCode, int teacherId){  // Met
         return 2;
     }
 
-    SubListGroup* group = searchGroupInCourse(groupId, course);  // Verifica que ese curso tenga el grupo
+    SubListGroup* group = searchGroupInCourse(groupId, course);
     if(group == NULL){
         return 3;
     }
 
     if(group->status == false){
 
-        if(teacher->myGroups == NULL){  //El profe no tiene grupos
+        if(teacher->myGroups == NULL){
             group->status = true;
 
             SubListGroup* newGroup = new SubListGroup(groupId);
@@ -667,7 +667,7 @@ int assignGroupToTeacher(int groupId, string courseCode, int teacherId){  // Met
             return 0;
         }
 
-        if(searchGroupInTeacher(groupId, course, teacher) == NULL){  //El profe tiene al menos un grupo
+        if(searchGroupInTeacher(groupId, course, teacher) == NULL){
             group->status = true;
 
             SubListGroup* newGroup = new SubListGroup(groupId);
@@ -677,10 +677,10 @@ int assignGroupToTeacher(int groupId, string courseCode, int teacherId){  // Met
             return 0;
         }
 
-        return 5; // EL profe ya tiene el grupo
+        return 5;
     }
 
-    return 4;  //Otro profe tiene el grupo
+    return 4;
 }
 
 
@@ -696,24 +696,24 @@ int deleteTeacherGroup(int groupId, string courseCode, int teacherId){  // Metho
         return 2;
     }
 
-    SubListGroup* group = searchGroupInCourse(groupId, course);  // Verifica que ese curso tenga el grupo
+    SubListGroup* group = searchGroupInCourse(groupId, course);
     if(group == NULL){
         return 3;
     }
 
-    SubListGroup* groupToDelete = searchGroupInTeacher(groupId, course, teacher);  // Verifica si el profe está a cargo del grupo
+    SubListGroup* groupToDelete = searchGroupInTeacher(groupId, course, teacher);
     if(groupToDelete == NULL){
         return 4;
     }
 
     group->status = false;
 
-    if(groupToDelete == teacher->myGroups){       // En caso de que sea el primer elemento
+    if(groupToDelete == teacher->myGroups){
         teacher->myGroups = groupToDelete->next;
         return 0;
     }
 
-    SubListGroup* preGroup = teacher->myGroups;   // En caso de que sea un elemento medio o el último
+    SubListGroup* preGroup = teacher->myGroups;
 
     while(preGroup->next != groupToDelete){
         preGroup = preGroup->next;
@@ -750,21 +750,21 @@ int assignGroupToStudent(int groupId, string courseCode, int studentCard){  // M
         return 2;
     }
 
-    SubListGroup* group = searchGroupInCourse(groupId, course);  // Verifica que ese curso tenga el grupo
+    SubListGroup* group = searchGroupInCourse(groupId, course);
     if(group == NULL){
         return 3;
     }
 
     if(group->status == true){
 
-        if(student->myGroups == NULL){  // El estudiante no está en ningun grupo
+        if(student->myGroups == NULL){
             SubListGroup* newGroup = new SubListGroup(groupId);
             newGroup->course = course;
             student->myGroups = newGroup;
             return 0;
         }
 
-        if(searchGroupInStudent(groupId, course, student) == NULL){  //El estudiante tiene al menos un grupo matriculado
+        if(searchGroupInStudent(groupId, course, student) == NULL){
             SubListGroup* newGroup = new SubListGroup(groupId);
             newGroup->course = course;
             newGroup->next = student->myGroups;
@@ -772,10 +772,10 @@ int assignGroupToStudent(int groupId, string courseCode, int studentCard){  // M
             return 0;
         }
 
-        return 5; // El estudiante ya se encuentra en el grupo
+        return 5;
     }
 
-    return 4;  // El grupo no tiene profesor asignado, entonces aún no se puede matricular
+    return 4;
 }
 
 
@@ -791,22 +791,22 @@ int deleteStudentGroup(int groupId, string courseCode, int studentCard){  // Met
         return 2;
     }
 
-    SubListGroup* group = searchGroupInCourse(groupId, course);  // Verifica que ese curso tenga el grupo
+    SubListGroup* group = searchGroupInCourse(groupId, course);
     if(group == NULL){
         return 3;
     }
 
-    SubListGroup* groupToDelete = searchGroupInStudent(groupId, course, student); // Verifica si el estudiante está en el grupo
+    SubListGroup* groupToDelete = searchGroupInStudent(groupId, course, student);
     if(groupToDelete == NULL){
         return 4;
     }
 
-    if(groupToDelete == student->myGroups){       // En caso de que sea el primer elemento
+    if(groupToDelete == student->myGroups){
         student->myGroups = groupToDelete->next;
         return 0;
     }
 
-    SubListGroup* preGroup = student->myGroups;   // En caso de que sea un elemento medio o el último
+    SubListGroup* preGroup = student->myGroups;
 
     while(preGroup->next != groupToDelete){
         preGroup = preGroup->next;
@@ -817,7 +817,7 @@ int deleteStudentGroup(int groupId, string courseCode, int studentCard){  // Met
 }
 
 
-SubListCourse* searchCourseInSemester(Course * auxC, Semester * auxS){
+SubListCourse* searchCourseInSemester(Course * auxC, Semester * auxS){ // Method that finds out if a course is taught in a semester
 
     if(auxS->myCourses == NULL){
         return NULL;
@@ -835,7 +835,7 @@ SubListCourse* searchCourseInSemester(Course * auxC, Semester * auxS){
 }
 
 
-int assignCourseToSemester(int yeard, int period, string code){
+int assignCourseToSemester(int yeard, int period, string code){  // Method that register a course in a semester
     Course* auxCourse = searchCourse(code);
     Semester* auxSemester = searchSemester(yeard, period);
 
@@ -861,7 +861,7 @@ int assignCourseToSemester(int yeard, int period, string code){
 }
 
 
-SubListAssignment* searchAssignment(SubListGroup* group, int id, string kind){
+SubListAssignment* searchAssignment(SubListGroup* group, int id, string kind){  // Method that search for an assignment into a specific group
     SubListAssignment* auxA;
 
     if((kind == "task") || (kind == "Task")){
@@ -941,7 +941,7 @@ void updateStudentAssignments(string kind, SubListGroup* groupToC){
 }
 
 
-int assignAssignment(Teacher* teacher, string courseCode, int idG, int idA, string kind, string name, int day, int month, int year, int hour){
+int assignAssignment(Teacher* teacher, string courseCode, int idG, int idA, string kind, string name, int day, int month, int year, int hour){  // Method that assign an assignment into a specific group
 
     if((kind != "task") && (kind != "Task") && (kind != "project") && (kind != "Project") && (kind != "test") && (kind != "Test") && (kind != "tour") && (kind != "Tour")){
         return 1;
@@ -955,7 +955,7 @@ int assignAssignment(Teacher* teacher, string courseCode, int idG, int idA, stri
         return 3;
     }
 
-    Course* course = searchCourse(courseCode); //Curso no existe
+    Course* course = searchCourse(courseCode);
     if(course == NULL){
         return 4;
     }
@@ -966,21 +966,21 @@ int assignAssignment(Teacher* teacher, string courseCode, int idG, int idA, stri
     } else{
         semester = searchSemester(year, 2);
     }
-    if(searchCourseInSemester(course, semester) == NULL){  //El curso no se imparte en el semestre actual
+    if(searchCourseInSemester(course, semester) == NULL){
         return 5;
     }
 
-    SubListGroup* group = searchGroupInCourse(idG, course); //Grupo no existe en dicho curso
+    SubListGroup* group = searchGroupInCourse(idG, course);
     if(group == NULL){
         return 6;
     }
 
-    SubListGroup* groupTeacher = searchGroupInTeacher(idG, course, teacher); //Teacher no pertenece al grupo
+    SubListGroup* groupTeacher = searchGroupInTeacher(idG, course, teacher);
     if(groupTeacher == NULL){
         return 7;
     }
 
-    SubListAssignment* activity = searchAssignment(groupTeacher, idA, kind); // La actividad ya esta registrada
+    SubListAssignment* activity = searchAssignment(groupTeacher, idA, kind);
     if(activity != NULL){
         return 8;
     }
@@ -1020,7 +1020,7 @@ int assignAssignment(Teacher* teacher, string courseCode, int idG, int idA, stri
         if((month < auxAsnext->month) || ((month == auxAsnext->month) && (day < auxAsnext->day )) || ((month == auxAsnext->month) && (day == auxAsnext->day) && (hour <= auxAsnext->hour))){
             auxAS->next = newAs;
             newAs->next = auxAsnext;
-            updateGroupAssignments(kind, groupTeacher, group); // Las tareas del grupo de curso quedan igual a las del profe
+            updateGroupAssignments(kind, groupTeacher, group);
             updateStudentAssignments(kind, groupTeacher);
             return 0;
         }
@@ -1029,83 +1029,83 @@ int assignAssignment(Teacher* teacher, string courseCode, int idG, int idA, stri
     }
 
     auxAS->next = newAs;
-    updateGroupAssignments(kind, groupTeacher, group); // Las tareas del grupo de curso quedan igual a las del profe
+    updateGroupAssignments(kind, groupTeacher, group);
     updateStudentAssignments(kind, groupTeacher);
     return 0;
 }
 
 
-int modifyAssignment(Teacher* teacher, string courseCode, int idG, int idA, string kind, string newName){
+int modifyAssignment(Teacher* teacher, string courseCode, int idG, int idA, string kind, string newName){  // Method that modifies the name of a registered assignment
 
     if((kind != "task") && (kind != "Task") && (kind != "project") && (kind != "Project") && (kind != "test") && (kind != "Test") && (kind != "tour") && (kind != "Tour")){
         return 1;
     }
 
-    Course* course = searchCourse(courseCode); //Curso no existe
+    Course* course = searchCourse(courseCode);
     if(course == NULL){
         return 2;
     }
 
-    SubListGroup* group = searchGroupInCourse(idG, course); //Grupo no existe en dicho curso
+    SubListGroup* group = searchGroupInCourse(idG, course);
     if(group == NULL){
         return 3;
     }
 
-    SubListGroup* groupTeacher = searchGroupInTeacher(idG, course, teacher); //Teacher no pertenece al grupo
+    SubListGroup* groupTeacher = searchGroupInTeacher(idG, course, teacher);
     if(groupTeacher == NULL){
         return 4;
     }
 
-    SubListAssignment*auxA = searchAssignment(groupTeacher, idA, kind);  // The course is searched using the "searchCourse" method
+    SubListAssignment*auxA = searchAssignment(groupTeacher, idA, kind);  // The assignment is searched using the "searchAssignment" method
 
     if(auxA != NULL){
-        auxA->name = newName;   // If the course is registered, then his information is modified
+        auxA->name = newName;   // If the assignment is registered, then its information is modified
         return 0;
     }
     return 5;
 }
 
 
-int deleteAssignment(Teacher* teacher, string courseCode, int idG, int idA, string kind){
+int deleteAssignment(Teacher* teacher, string courseCode, int idG, int idA, string kind){  // Method that removes a registered assignment
 
     if((kind != "task") && (kind != "Task") && (kind != "project") && (kind != "Project") && (kind != "test") && (kind != "Test") && (kind != "tour") && (kind != "Tour")){
         return 1;
     }
 
-    Course* course = searchCourse(courseCode); //Curso no existe
+    Course* course = searchCourse(courseCode);
     if(course == NULL){
         return 2;
     }
 
-    SubListGroup* group = searchGroupInCourse(idG, course); //Grupo no existe en dicho curso
+    SubListGroup* group = searchGroupInCourse(idG, course);
     if(group == NULL){
         return 3;
     }
 
-    SubListGroup* groupTeacher = searchGroupInTeacher(idG, course, teacher); //Teacher no pertenece al grupo
+    SubListGroup* groupTeacher = searchGroupInTeacher(idG, course, teacher);
     if(groupTeacher == NULL){
         return 4;
     }
 
-    SubListAssignment* activity = searchAssignment(groupTeacher, idA, kind); //La actividad no existe
+    SubListAssignment* activity = searchAssignment(groupTeacher, idA, kind); // The assignment is searched using the "searchAssignment" method
     if(activity == NULL){
         return 5;
     }
 
 
-    if(activity == groupTeacher->tasks){       // En caso de que sea el primer elemento
+    if(activity == groupTeacher->tasks){  // Assignment type is verified
         groupTeacher->tasks = groupTeacher->tasks->next;
         return 0;
     }
-    if(activity == groupTeacher->tests){       // En caso de que sea el primer elemento
+    if(activity == groupTeacher->tests){
         groupTeacher->tests = groupTeacher->tests->next;
         return 0;
     }
-    if(activity == groupTeacher->tours){       // En caso de que sea el primer elemento
+    if(activity == groupTeacher->tours){
         groupTeacher->tours = groupTeacher->tours->next;
         return 0;
     }
-    if(activity == groupTeacher->projects){       // En caso de que sea el primer elemento
+    if(activity == groupTeacher->projects){
         groupTeacher->projects = groupTeacher->projects->next;
         return 0;
     }
@@ -1136,7 +1136,7 @@ int deleteAssignment(Teacher* teacher, string courseCode, int idG, int idA, stri
 }
 
 
-SubListTalk* searchTalkSemester(Semester* auxS, int id){
+SubListTalk* searchTalkSemester(Semester* auxS, int id){  // Method that search for a general talk into a specific semester
     SubListTalk*auxT = auxS->myTalks;
     while(auxT != NULL){
         if(id == auxT->id){
@@ -1148,7 +1148,7 @@ SubListTalk* searchTalkSemester(Semester* auxS, int id){
 }
 
 
-int assignTalkToSemester(int id, int year, int period, string name, int m, int d, int h){
+int assignTalkToSemester(int id, int year, int period, string name, int m, int d, int h){  // Method that register a general talk in a semester
     Semester*auxS = searchSemester(year, period);
 
     if(auxS == NULL){
@@ -1198,24 +1198,24 @@ int assignTalkToSemester(int id, int year, int period, string name, int m, int d
 }
 
 
-bool modifyTalk(int id, string newName, int year, int period){  // Method that modifies the name of a registered talks
+bool modifyTalk(int id, string newName, int year, int period){  // Method that modifies the name of a registered talk
     Semester*auxS = searchSemester(year, period);
     if(auxS == NULL){
         return false;
     }
 
-    SubListTalk*aux = searchTalkSemester(auxS, id);  // The course is searched using the "searchCourse" method
+    SubListTalk*aux = searchTalkSemester(auxS, id);  // The talk is searched using the "searchTalkSemester" method
 
     if(aux != NULL){
-        aux->name = newName;   // If the course is registered, then his information is modified
+        aux->name = newName;   // If the talk is registered, then his information is modified
         return true;
     }
 
-    return false;  // If the course is not registered, then "false" is returne
+    return false;  // If the talk is not registered, then "false" is return
 }
 
 
-int deleteTalk(int id, int year, int period){  // Method that modifies the name of a registered talks
+int deleteTalk(int id, int year, int period){  // Method that removes a registered talk from a semester
 
     Semester*auxS = searchSemester(year, period);
     if(auxS == NULL){
@@ -1244,7 +1244,7 @@ int deleteTalk(int id, int year, int period){  // Method that modifies the name 
 }
 
 
-SubListAssignment* searchAssignmentStudent(Student* student, int id, string kind, Course* course){
+SubListAssignment* searchAssignmentStudent(Student* student, int id, string kind, Course* course){  // Method that verifies if a student turned in an assignment
     SubListAssignment* auxA = student->myAssignments;
 
     while(auxA != NULL){
@@ -1258,12 +1258,12 @@ SubListAssignment* searchAssignmentStudent(Student* student, int id, string kind
 }
 
 
-int registerCoAssignment(Student* student, string courseCode, int idG, int idA, string kind, int year, int month, int day, int hour){
+int registerCoAssignment(Student* student, string courseCode, int idG, int idA, string kind, int year, int month, int day, int hour){ // Method that register an assignment as completed by a specific student
     if((kind != "task") && (kind != "Task") && (kind != "project") && (kind != "Project") && (kind != "test") && (kind != "Test") && (kind != "tour") && (kind != "Tour")){
         return 1;
     }
 
-    Course* course = searchCourse(courseCode); //Curso no existe
+    Course* course = searchCourse(courseCode);
     if(course == NULL){
         return 2;
     }
@@ -1274,26 +1274,26 @@ int registerCoAssignment(Student* student, string courseCode, int idG, int idA, 
     } else{
         semester = searchSemester(year, 2);
     }
-    if(searchCourseInSemester(course, semester) == NULL){  //El curso no se imparte en el semestre actual
+    if(searchCourseInSemester(course, semester) == NULL){
         return 3;
     }
 
-    SubListGroup* group = searchGroupInCourse(idG, course); //Grupo no existe en dicho curso
+    SubListGroup* group = searchGroupInCourse(idG, course);
     if(group == NULL){
         return 4;
     }
 
-    SubListGroup* groupStudent = searchGroupInStudent(idG, course, student); //Estudiante no pertenece al grupo
+    SubListGroup* groupStudent = searchGroupInStudent(idG, course, student);
     if(groupStudent == NULL){
         return 5;
     }
 
-    SubListAssignment* activity = searchAssignment(group, idA, kind); //La actividad no existe
+    SubListAssignment* activity = searchAssignment(group, idA, kind);
     if(activity == NULL){
         return 6;
     }
 
-    if(student->myAssignments == NULL){   // EL estudiante no ha registrado ninguna actividad
+    if(student->myAssignments == NULL){
         SubListAssignment* newA = new SubListAssignment(idA, activity->name, kind, day, month, year, hour);
         srand((unsigned)time(0));
         int grade = (rand()%90)+10;
@@ -1303,7 +1303,7 @@ int registerCoAssignment(Student* student, string courseCode, int idG, int idA, 
         return 0;
     }
 
-    if(searchAssignmentStudent(student, idA, kind, course) == NULL){ //El estudiante no ha registrado dicha actividad como completada
+    if(searchAssignmentStudent(student, idA, kind, course) == NULL){
         SubListAssignment* newA = new SubListAssignment(idA, activity->name, kind, day, month, year, hour);
         srand((unsigned)time(0));
         int grade = (rand()%90)+10;
@@ -1314,11 +1314,11 @@ int registerCoAssignment(Student* student, string courseCode, int idG, int idA, 
         return 0;
     }
 
-    return 7; // El estudiante ya registro la actividad como completada
+    return 7;
 }
 
 
-SubListTalk* searchTalkStudent(Student* student, int id, int year, int month){
+SubListTalk* searchTalkStudent(Student* student, int id, int year, int month){  // Method that verifies if a student attend to a specific talk
     SubListTalk* auxT = student->myTalks;
 
     while(auxT != NULL){
@@ -1331,31 +1331,31 @@ SubListTalk* searchTalkStudent(Student* student, int id, int year, int month){
 }
 
 
-int registerAtteTalk(Student* student, int id, int year, int period){
-    Semester* semester = searchSemester(year, period);  //Semestre no esta registrado
+int registerAtteTalk(Student* student, int id, int year, int period){ // Method that register a talk as attended by a specific student
+    Semester* semester = searchSemester(year, period);
     if(semester == NULL){
         return 1;
     }
 
-    SubListTalk* talk = searchTalkSemester(semester, id); // La charla no existe en el semestre
+    SubListTalk* talk = searchTalkSemester(semester, id);
     if(talk == NULL){
         return 2;
     }
 
-    if(student->myTalks == NULL){  // El estudiante no ha asistido a ninguna charla
+    if(student->myTalks == NULL){
         SubListTalk* newT = new SubListTalk(id, talk->name, talk->year, talk->month, talk->day, talk->hour);
         student->myTalks = newT;
         return 0;
     }
 
-    if(searchTalkStudent(student, id, talk->year, talk->month) == NULL){  //El estudiante no ha registrado la asistencia a la charla
+    if(searchTalkStudent(student, id, talk->year, talk->month) == NULL){
         SubListTalk* newT = new SubListTalk(id, talk->name, talk->year, talk->month, talk->day, talk->hour);
         newT->next = student->myTalks;
         student->myTalks = newT;
         return 0;
     }
 
-    return 3; // El estudiante ya registro la asistencia en la charla
+    return 3;
 }
 
 
@@ -2726,7 +2726,7 @@ void login(){
 }
 
 
-void registerAssignment(Teacher* teacher){  //
+void registerAssignment(Teacher* teacher){
     system("CLS");
     cout << endl <<"-------------------->> Registering a new assignment in a group <<--------------------" << endl;
     string code;
@@ -3222,7 +3222,6 @@ void teacherReport3(){
 
 
 void teacherReport4(Teacher* teacher){
-
     system("CLS");
     char k = '0';
     int id, year, period;
@@ -3281,11 +3280,6 @@ void teacherReport4(Teacher* teacher){
     cin >> k;
     teacherReports(teacher);
 }
-
-
-
-
-
 
 
 void teacherReport5(){
@@ -3379,7 +3373,7 @@ void teachersMenu(Teacher* teacher){
 }
 
 
-void completeAssignment(Student* student){ //
+void completeAssignment(Student* student){
     system("CLS");
     cout << endl <<"--------------------->> Registering an assignment as completed <<---------------------" << endl;
     string code;
