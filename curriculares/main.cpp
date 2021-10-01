@@ -3257,8 +3257,79 @@ void teacherReport1(){
 }
 
 
-void teacherReport2(){
-    cout << endl <<"Hola";
+void teacherReport2(Teacher* teacher){
+    system("CLS");
+    char k = '0';
+
+    cout << endl <<"------------------------------------>>Teacher Report 2<<-----------------------------------" << endl;
+
+    cout<< "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Teacher ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+    cout<< "\nTeacher: " << teacher->name << endl;
+    cout<< "\n--------------------------------------- Groups  ---------------------------------------\n";
+
+    SubListGroup* groups = teacher->myGroups;
+
+    while(groups != NULL){
+
+        cout << "\n" << groups->course->name << " --> Group " << groups->groupId << endl;
+        SubListAssignment*auxTasks = groups->tasks;
+        cout<< "\n--------------------------------------- Tasks  ---------------------------------------\n";
+        if(auxTasks == NULL){
+            cout<< "\nNot founds" << endl;
+        }
+        while(auxTasks != NULL){
+            cout<< "\nName: " << auxTasks->name << " --> Id " << auxTasks->id << endl;
+            cout << "\nDate: " << auxTasks->day << "/" << auxTasks->month << "/" << auxTasks->year << endl;
+            cout << "\n--------------------------------------------------------------------------------------" << endl;
+            auxTasks= auxTasks->next;
+        }
+
+        SubListAssignment*auxTest = groups->tests;
+        cout<< "\n--------------------------------------- Tests  ---------------------------------------\n";
+        if(auxTest == NULL){
+            cout<< "\nNot founds" << endl;
+        }
+        while(auxTest != NULL){
+            cout << "\nName: " << auxTest->name << " --> Id " << auxTest->id << endl;
+            cout << "\nDate: " << auxTest->day << "/" << auxTest->month << "/" << auxTest->year << endl;
+            cout << "\n--------------------------------------------------------------------------------------" << endl;
+            auxTest= auxTest->next;
+        }
+
+        SubListAssignment*auxProjects = groups->projects;
+        cout<< "\n--------------------------------------- Projects  ---------------------------------------\n";
+        if(auxProjects == NULL){
+            cout<< "\nNot founds" << endl;
+        }
+        while(auxProjects != NULL){
+            cout << "\nName: " << auxProjects->name << " --> Id " << auxProjects->id << endl;
+            cout << "\nDate: " << auxProjects->day << "/" << auxProjects->month << "/" << auxProjects->year << endl;
+            cout << "\n--------------------------------------------------------------------------------------" << endl;
+            auxProjects= auxProjects->next;
+        }
+
+
+        SubListAssignment*auxTours = groups->tours;
+        cout<< "\n--------------------------------------- Tours  ---------------------------------------\n";
+        if(auxTours == NULL){
+            cout<< "\nNot founds" << endl;
+        }
+        while(auxTours != NULL){
+            cout << "\nName: " << auxTours->name << " --> Id " << auxTours->id << endl;
+            cout << "\nDate: " << auxTours->day << "/" << auxTours->month << "/" << auxTours->year << endl;
+            cout << "\n--------------------------------------------------------------------------------------" << endl;
+            auxTours= auxTours->next;
+        }
+
+        cout << endl <<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
+        groups = groups->next;
+    }
+
+    cout << endl << " Press any key to back reports: ";
+    cin >> k;
+
+    teacherReports(teacher);
+
 
 }
 
@@ -3309,7 +3380,7 @@ void teacherReports(Teacher* teacher){
         teacherReport1();
 
     } else if(k == '2'){
-        teacherReport2();
+        teacherReport2(teacher);
 
     } else if(k == '3'){
         teacherReport3();
